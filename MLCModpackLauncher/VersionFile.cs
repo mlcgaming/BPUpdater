@@ -11,7 +11,7 @@ namespace MLCModpackLauncher
         public string Name { get; private set; }
         public string FileName { get; private set; }
         public string URL { get; private set; }
-        public bool IncludesMods, IncludesConfig, IncludesResourcePack, IncludesShaders;
+        public bool IncludesMods, IncludesConfig, IncludesResourcePack, IncludesShaders, IncludesForge;
         
         public VersionFile(int id, string text, string name)
         {
@@ -25,10 +25,11 @@ namespace MLCModpackLauncher
             IncludesMods = true;
             IncludesResourcePack = false;
             IncludesShaders = false;
+            IncludesForge = false;
         }
 
         [JsonConstructor]
-        public VersionFile(int id, bool isActive, string text, string name, string fileName, string url, bool includeMods, bool includeConfig, bool includeResourcePack, bool includesShaders)
+        public VersionFile(int id, bool isActive, string text, string name, string fileName, string url, bool includeMods, bool includeConfig, bool includeResourcePack = false, bool includesShaders = false, bool includesForge = false)
         {
             ID = id;
             IsActive = isActive;
@@ -40,6 +41,7 @@ namespace MLCModpackLauncher
             IncludesMods = includeMods;
             IncludesResourcePack = includeResourcePack;
             IncludesShaders = includesShaders;
+            IncludesForge = includesForge;
         }
         public void SetWebGetURL(string url)
         {

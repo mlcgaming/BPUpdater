@@ -288,6 +288,8 @@ namespace MLCModpackLauncher
             string configDirectory = Options.MinecraftDirectory + "config";
             string packDirectory = Options.MinecraftDirectory + "resourcepacks";
             string shaderDirectory = Options.MinecraftDirectory + "shaderpacks";
+            string forgeVersionDirectory = Path.Combine(Options.MinecraftDirectory, "versions");
+            string forgeJarDirectory = Path.Combine(Options.MinecraftDirectory, "libraries\\net\\minecraftforge\\forge\\");
 
             if (LatestVersion.IncludesMods == true)
             {
@@ -350,6 +352,25 @@ namespace MLCModpackLauncher
                 }
 
                 MessageBox.Show("This Modpack Update included a Shader Pack! You can enable it in-game by going to Options > Video Settings > Shaders!");
+            }
+            if (LatestVersion.IncludesForge == true)
+            {
+                MessageBox.Show("Installing Updated Forge Files!");
+
+                string latestJarDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\BuddyPals\\bin\\forge\\JAR\\";
+                string latestJsonDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\BuddyPals\\bin\\forge\\JSON\\";
+
+                foreach (var folder in Directory.GetDirectories(latestJarDirectory))
+                {
+                    Directory.Move(folder, Path.Combine(forgeJarDirectory, Path.GetFileName(folder)));
+                }
+
+                foreach (var folder in Directory.GetDirectories(latestJsonDirectory))
+                {
+                    Directory.Move(folder, Path.Combine(forgeVersionDirectory, Path.GetFileName(folder)));
+                }
+
+                MessageBox.Show("This Modpack Update included a newer version of Forge. You will need to create a new Installation from the Minecraft Launcher. If you're unsure on how to do this, check out http://mc.mlcgaming.com and select Help > Getting Started at the top!");
             }
 
             MessageBox.Show("Modpack Updated!");
