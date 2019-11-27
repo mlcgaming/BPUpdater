@@ -102,6 +102,13 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="MojangLauncherProfile\LauncherProfile.cs" />
+    <Compile Include="MojangLauncherProfile\LauncherProfileAuthenticationPackage.cs" />
+    <Compile Include="MojangLauncherProfile\LauncherProfileAuthenticationProfile.cs" />
+    <Compile Include="MojangLauncherProfile\LauncherProfileLauncherVersion.cs" />
+    <Compile Include="MojangLauncherProfile\LauncherProfileSelectedUser.cs" />
+    <Compile Include="MojangLauncherProfile\LauncherProfileSettings.cs" />
+    <Compile Include="MojangLauncherProfile\MojangLauncherProfileFile.cs" />
     <Compile Include="OptionsConfiguration.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
