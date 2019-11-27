@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net;
 using System.Windows.Forms;
 using Newtonsoft.Json;
@@ -16,6 +14,7 @@ namespace MLCModpackLauncher
         VersionFile CurrentVersion, LatestVersion;
         bool IsDownloadingPTR;
         string ConfigFilePath, VersionFilePath;
+        ToolTip CurrentVersionTooltip, LatestVersionTooltip, CheckForUpdateButtonTooltip, UpdateModpackTooltip, UpdateForgeTooltip;
 
         public MainForm()
         {
@@ -29,7 +28,7 @@ namespace MLCModpackLauncher
         }
         private void BtnApplyUpdate_Click(object sender, EventArgs e)
         {
-            btnExit.Enabled = false;
+            menuMain.Enabled = false;
             DownloadFileFTP(Options.AppDirectory);
         }
         private void BtnExit_Click(object sender, EventArgs e)
@@ -47,7 +46,7 @@ namespace MLCModpackLauncher
         private void downloadPTRPackageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             IsDownloadingPTR = true;
-            btnExit.Enabled = false;
+            menuMain.Enabled = false;
             LatestVersion = DownloadMPVersionJson("ftp://mc.mlcgaming.com/modpack/PTR/BPVersion.json");
 
             if (LatestVersion.IsActive == true)
@@ -59,7 +58,7 @@ namespace MLCModpackLauncher
             {
                 MessageBox.Show("PTR is not Currently Active. Check back later!");
                 LatestVersion = null;
-                btnExit.Enabled = true;
+                menuMain.Enabled = true;
                 IsDownloadingPTR = false;
                 return;
             }
@@ -81,7 +80,8 @@ namespace MLCModpackLauncher
 
         private void InitializeMainForm()
         {
-            btnApplyUpdate.Enabled = false;
+            btnUpdateModpack.Enabled = false;
+            btnUpdateForge.Enabled = false;
             CurrentVersion = null;
             LatestVersion = null;
             IsDownloadingPTR = false;
@@ -90,6 +90,7 @@ namespace MLCModpackLauncher
 
             InitializeOptions();
             CleanupAppDataDirectory();
+            InitializeTooltips();
         }
         private void InitializeOptions()
         {
@@ -158,6 +159,35 @@ namespace MLCModpackLauncher
 
             LatestVersion = null;
         }
+        private void InitializeTooltips()
+        {
+            CurrentVersionTooltip = new ToolTip();
+            LatestVersionTooltip = new ToolTip();
+            CheckForUpdateButtonTooltip = new ToolTip();
+            UpdateModpackTooltip = new ToolTip();
+            UpdateForgeTooltip = new ToolTip();
+
+            CurrentVersionTooltip.IsBalloon = true;
+            CurrentVersionTooltip.ShowAlways = true;
+            CurrentVersionTooltip.SetToolTip(lblCurrentVersion, "This is the version of the BuddyPals Modpack detected on your machine, using the Minecraft Directory defined in the Options above.");
+
+            LatestVersionTooltip.IsBalloon = true;
+            LatestVersionTooltip.ShowAlways = true;
+            LatestVersionTooltip.SetToolTip(lblLatestVersion, "This is the version of the BuddyPals Modpack currently being deployed by the master server. If it does not match your installed version, you'll have the option to update below.");
+
+            CheckForUpdateButtonTooltip.IsBalloon = true;
+            CheckForUpdateButtonTooltip.ShowAlways = true;
+            CheckForUpdateButtonTooltip.SetToolTip(btnCheckUpdate, "Check the master server for the latest updates to the BuddyPals Community Modpack");
+
+            UpdateModpackTooltip.IsBalloon = true;
+            UpdateModpackTooltip.ShowAlways = true;
+            UpdateModpackTooltip.SetToolTip(btnUpdateModpack, "Install the most recent modpack files!");
+
+            UpdateForgeTooltip.IsBalloon = true;
+            UpdateForgeTooltip.ShowAlways = true;
+            UpdateForgeTooltip.SetToolTip(btnUpdateForge, "Install the files necessary for Forge to run. This is only available when a modpack update requires a different version of Forge. You can download the necessary version manually, if preferred.");
+        }
+
         private void DownloadFileFTP(string downloadPath)
         {
             string fileName = LatestVersion.FileName;
@@ -190,7 +220,7 @@ namespace MLCModpackLauncher
                 File.WriteAllText(Options.AppDirectory + "/config.json", optionsFile);
                 IsDownloadingPTR = false;
                 prgbarMain.Value = 0;
-                btnExit.Enabled = true;
+                menuMain.Enabled = true;
             }
         }
         private string SelectFolder(Environment.SpecialFolder rootFolder)
@@ -251,11 +281,11 @@ namespace MLCModpackLauncher
 
             if (CurrentVersion.ID != LatestVersion.ID)
             {
-                btnApplyUpdate.Enabled = true;
+                btnUpdateModpack.Enabled = true;
             }
             else
             {
-                btnApplyUpdate.Enabled = false;
+                btnUpdateModpack.Enabled = false;
             }
 
             if (CurrentVersion == null)
