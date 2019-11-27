@@ -15,7 +15,7 @@ namespace MLCModpackLauncher
         OptionsConfiguration Options;
         VersionFile CurrentVersion, LatestVersion;
         bool IsDownloadingPTR;
-        string UpdaterConfigFilePath, BuddyPalVersionFilePath;
+        string ConfigFilePath, VersionFilePath;
 
         public MainForm()
         {
@@ -64,6 +64,20 @@ namespace MLCModpackLauncher
                 return;
             }
         }
+        private void minecraftDirectoryToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            MessageBox.Show("Select Minecraft Installation Folder. This should be the folder that contains your MODS and CONFIGS folders.");
+            Options.SetMCDirectory(SelectFolder(Environment.SpecialFolder.ApplicationData));
+            MessageBox.Show("Minecraft Install Directory set to " + Options.MinecraftDirectory);
+            UpdateConfigJSON();
+        }
+        private void pTRDownloadDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Select a Download Path for PTR files. PTR files download as a ZIP that needs to be extracted and moved into your PTR build on your own.");
+            Options.SetPTRDirectory(SelectFolder(Environment.SpecialFolder.Desktop));
+            MessageBox.Show("PTR Download Path Now Set to " + Options.PTRDirectory);
+            UpdateConfigJSON();
+        }
 
         private void InitializeMainForm()
         {
@@ -71,17 +85,35 @@ namespace MLCModpackLauncher
             CurrentVersion = null;
             LatestVersion = null;
             IsDownloadingPTR = false;
-            UpdaterConfigFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\") + "config.json";
-            BuddyPalVersionFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\") + "BPVersion.json";
+            ConfigFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\") + "updater.conf";
+            VersionFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\") + "modpack.ver";
 
+            InitializeOptions();
+            CleanupAppDataDirectory();
+        }
+        private void InitializeOptions()
+        {
             string optionsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\");
 
             if (Directory.Exists(optionsDirectory) == true)
             {
-                if (File.Exists(UpdaterConfigFilePath) == true)
+                if (File.Exists(Path.Combine(optionsDirectory, "config.json")) == true)
                 {
-                    string filePath = optionsDirectory + "\\config.json";
-                    Options = JsonConvert.DeserializeObject<OptionsConfiguration>(File.ReadAllText(filePath));
+                    if (File.Exists(Path.Combine(optionsDirectory, "updater.conf")) == false)
+                    {
+                        // Use old config file to make new updater.settings file
+                        Options = JsonConvert.DeserializeObject<OptionsConfiguration>(File.ReadAllText(Path.Combine(optionsDirectory, "config.json")));
+                        string newFile = JsonConvert.SerializeObject(Options, Formatting.Indented);
+                        File.WriteAllText(Path.Combine(optionsDirectory, "updater.conf"), newFile);
+
+                        // Then Remove the Old File
+                        File.Delete(Path.Combine(optionsDirectory, "config.json"));
+                    }
+                    else
+                    {
+                        // Just remove the old Config File
+                        File.Delete(Path.Combine(optionsDirectory, "config.json"));
+                    }
                 }
                 else
                 {
@@ -96,55 +128,35 @@ namespace MLCModpackLauncher
                 UpdateConfigJSON();
             }
         }
-        private string SelectFolder(Environment.SpecialFolder rootFolder)
+        private void CleanupAppDataDirectory()
         {
-            string startingFolder = "";
-
-            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
-            folderBrowserDialog.RootFolder = rootFolder;
-
-            if (rootFolder == Environment.SpecialFolder.Desktop)
+            // Check for and Remove old BPVersion file formats
+            if(File.Exists(Path.Combine(Options.AppDirectory, "BPVersion.json")) == true)
             {
-                startingFolder = Options.PTRDirectory;
-                folderBrowserDialog.SelectedPath = Options.PTRDirectory;
+                if (File.Exists(Path.Combine(Options.AppDirectory, "modpack.ver")) == false)
+                {
+                    // Use old BPVersion file to make new 'modpack.ver' file
+                    LatestVersion = JsonConvert.DeserializeObject<VersionFile>(File.ReadAllText(Path.Combine(Options.AppDirectory, "BPVersion.json")));
+                    string newFile = JsonConvert.SerializeObject(LatestVersion, Formatting.Indented);
+                    File.WriteAllText(Path.Combine(Options.AppDirectory, "modpack.ver"), newFile);
+
+                    // Then Remove the Old File
+                    File.Delete(Path.Combine(Options.AppDirectory, "BPVersion.json"));
+                }
+                else
+                {
+                    // Just remove the old BPVersion File
+                    File.Delete(Path.Combine(Options.AppDirectory, "BPVersion.json"));
+                }
             }
-            else
+
+            // Check for and Delete Old Config file formats
+            if(File.Exists(Path.Combine(Options.AppDirectory, "config.json")) == true)
             {
-                startingFolder = Options.MinecraftDirectory;
-                folderBrowserDialog.SelectedPath = Options.MinecraftDirectory;
+                File.Delete(Path.Combine(Options.AppDirectory, "config.json"));
             }
 
-            DialogResult result = folderBrowserDialog.ShowDialog();
-
-            if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(folderBrowserDialog.SelectedPath))
-            {
-                return folderBrowserDialog.SelectedPath;
-            }
-            else
-            {
-                return startingFolder;
-            }
-        }
-        private void ExitProgram()
-        {
-            UpdateConfigJSON();
-            Close();
-        }
-        private VersionFile DownloadMPVersionJson(string wgetURL)
-        {
-            // DOWNLOAD MC.MLCGAMING.COM/DOWNLOADS/MPVERSION.JSON
-            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(wgetURL);
-            request.Method = WebRequestMethods.Ftp.DownloadFile;
-
-            request.Credentials = new NetworkCredential("anonymous", "janeDoe@contoso.com");
-
-            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-
-            Stream responseStream = response.GetResponseStream();
-
-            // PARSE FILE INTO VERSIONINFO OBJECT (LATESTVERSION)
-            StreamReader reader = new StreamReader(responseStream);
-            return JsonConvert.DeserializeObject<VersionFile>(reader.ReadToEnd());
+            LatestVersion = null;
         }
         private void DownloadFileFTP(string downloadPath)
         {
@@ -181,37 +193,51 @@ namespace MLCModpackLauncher
                 btnExit.Enabled = true;
             }
         }
-        private void minecraftDirectoryToolStripMenuItem_Click_1(object sender, EventArgs e)
+        private string SelectFolder(Environment.SpecialFolder rootFolder)
         {
-            MessageBox.Show("Select Minecraft Installation Folder. This should be the folder that contains your MODS and CONFIGS folders.");
-            Options.SetMCDirectory(SelectFolder(Environment.SpecialFolder.ApplicationData));
-            MessageBox.Show("Minecraft Install Directory set to " + Options.MinecraftDirectory);
-            UpdateConfigJSON();
-        }
-        private void pTRDownloadDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Select a Download Path for PTR files. PTR files download as a ZIP that needs to be extracted and moved into your PTR build on your own.");
-            Options.SetPTRDirectory(SelectFolder(Environment.SpecialFolder.Desktop));
-            MessageBox.Show("PTR Download Path Now Set to " + Options.PTRDirectory);
-            UpdateConfigJSON();
-        }
+            string startingFolder = "";
 
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+            folderBrowserDialog.RootFolder = rootFolder;
+
+            if (rootFolder == Environment.SpecialFolder.Desktop)
+            {
+                startingFolder = Options.PTRDirectory;
+                folderBrowserDialog.SelectedPath = Options.PTRDirectory;
+            }
+            else
+            {
+                startingFolder = Options.MinecraftDirectory;
+                folderBrowserDialog.SelectedPath = Options.MinecraftDirectory;
+            }
+
+            DialogResult result = folderBrowserDialog.ShowDialog();
+
+            if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(folderBrowserDialog.SelectedPath))
+            {
+                return folderBrowserDialog.SelectedPath;
+            }
+            else
+            {
+                return startingFolder;
+            }
+        }
         private void UpdateConfigJSON()
         {
             string optionsFile = JsonConvert.SerializeObject(Options, Formatting.Indented);
-            File.WriteAllText(UpdaterConfigFilePath, optionsFile);
+            File.WriteAllText(ConfigFilePath, optionsFile);
         }
         private void CheckForUpdate()
         {
             // DOWNLOAD MC.MLCGAMING.COM/DOWNLOADS/MPVERSION.JSON
             // PARSE FILE INTO VERSIONINFO OBJECT (LATESTVERSION)
-            LatestVersion = DownloadMPVersionJson("ftp://mc.mlcgaming.com/modpack/BPVersion.json");
+            LatestVersion = DownloadMPVersionJson("ftp://mc.mlcgaming.com/modpack/modpack.ver");
 
             // LOOK FOR MPVERSION.JSON IN APPDATA\BUDDYPALS\ FOLDER
 
-            if (File.Exists(BuddyPalVersionFilePath) == true)
+            if (File.Exists(VersionFilePath) == true)
             {
-                CurrentVersion = JsonConvert.DeserializeObject<VersionFile>(File.ReadAllText(BuddyPalVersionFilePath));
+                CurrentVersion = JsonConvert.DeserializeObject<VersionFile>(File.ReadAllText(VersionFilePath));
             }
             else
             {
@@ -330,13 +356,34 @@ namespace MLCModpackLauncher
             MessageBox.Show("Cleaning Up...Almost Finished!");
 
             string MPVersionJson = JsonConvert.SerializeObject(LatestVersion, Formatting.Indented);
-            File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\BuddyPals\\BPVersion.json", MPVersionJson);
+            File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\BuddyPals\\modpack.ver", MPVersionJson);
 
             Directory.Delete(extractionPath, true);
             File.Delete(zipFilePath);
 
             MessageBox.Show("All Done! Enjoy!");
             Close();
+        }
+        private void ExitProgram()
+        {
+            UpdateConfigJSON();
+            Close();
+        }
+        private VersionFile DownloadMPVersionJson(string wgetURL)
+        {
+            // DOWNLOAD MC.MLCGAMING.COM/DOWNLOADS/MPVERSION.JSON
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(wgetURL);
+            request.Method = WebRequestMethods.Ftp.DownloadFile;
+
+            request.Credentials = new NetworkCredential("anonymous", "janeDoe@contoso.com");
+
+            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+            Stream responseStream = response.GetResponseStream();
+
+            // PARSE FILE INTO VERSIONINFO OBJECT (LATESTVERSION)
+            StreamReader reader = new StreamReader(responseStream);
+            return JsonConvert.DeserializeObject<VersionFile>(reader.ReadToEnd());
         }
     }
 }
