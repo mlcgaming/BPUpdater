@@ -185,7 +185,7 @@ namespace MLCModpackLauncher
         }
         private void AddNewForgeLauncherProfile(string forgeVersion, string installationName)
         {
-            string launcherFilePath = Path.Combine(Options.MinecraftDirectory, ".minecraft\\launcher_profiles.json");
+            string launcherFilePath = Path.Combine(Options.MinecraftDirectory, "launcher_profiles.json");
             MojangLauncherProfileFile launcherFile = JsonConvert.DeserializeObject<MojangLauncherProfileFile>(File.ReadAllText(launcherFilePath));
             launcherFile.AddNewProfile(forgeVersion, installationName);
             string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "launcher_profiles.json");
@@ -409,11 +409,17 @@ namespace MLCModpackLauncher
 
                 foreach (var folder in Directory.GetDirectories(latestJarDirectory))
                 {
-                    Directory.Move(folder, Path.Combine(forgeJarDirectory, Path.GetFileName(folder)));
+                    if(Directory.Exists(Path.Combine(forgeJarDirectory, Path.GetFileName(folder))) != true)
+                    {
+                        Directory.Move(folder, Path.Combine(forgeJarDirectory, Path.GetFileName(folder)));
+                    }
                 }
                 foreach (var folder in Directory.GetDirectories(latestJsonDirectory))
                 {
-                    Directory.Move(folder, Path.Combine(forgeVersionDirectory, Path.GetFileName(folder)));
+                    if (Directory.Exists(Path.Combine(forgeVersionDirectory, Path.GetFileName(folder))) != true)
+                    {
+                        Directory.Move(folder, Path.Combine(forgeVersionDirectory, Path.GetFileName(folder)));
+                    }
                 }
 
                 AddNewForgeLauncherProfile(LatestVersion.Forge.ForgeVersionID, LatestVersion.Forge.InstallationName);

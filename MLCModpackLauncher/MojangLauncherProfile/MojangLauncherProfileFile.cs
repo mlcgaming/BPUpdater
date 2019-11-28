@@ -56,7 +56,14 @@ namespace MLCModpackLauncher.MojangLauncherProfile
         public void AddNewProfile(string forgeVersion, string installationName)
         {
             LauncherProfile newProfile = new LauncherProfile("Furnace", "2019-11-27T01:40:56.781Z", forgeVersion, installationName, "custom", javaArgs: "-Xmx10G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M");
-            Profiles.Add("BuddyPals", newProfile);
+            if(Profiles.ContainsKey("BuddyPals") == false)
+            {
+                Profiles.Add("BuddyPals", newProfile);
+            }
+            else
+            {
+                Profiles["BuddyPals"] = newProfile;
+            }
         }
     }
 }
