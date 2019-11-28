@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -188,7 +189,7 @@ namespace MLCModpackLauncher
             string launcherFilePath = Path.Combine(Options.MinecraftDirectory, "launcher_profiles.json");
             MojangLauncherProfileFile launcherFile = JsonConvert.DeserializeObject<MojangLauncherProfileFile>(File.ReadAllText(launcherFilePath));
             launcherFile.AddNewProfile(forgeVersion, installationName);
-            string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "launcher_profiles.json");
+            string savePath = Path.Combine(Options.MinecraftDirectory, "launcher_profiles.json");
             string json = JsonConvert.SerializeObject(launcherFile, Formatting.Indented);
             File.WriteAllText(savePath, json);
         }
@@ -312,7 +313,6 @@ namespace MLCModpackLauncher
         }
         private void UpdateModpack()
         {
-
             // Unzip the Latest Modpack
             string zipFilePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\BuddyPals\\" + LatestVersion.FileName;
             string extractionPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\BuddyPals\\" + "bin";
@@ -424,7 +424,7 @@ namespace MLCModpackLauncher
 
                 AddNewForgeLauncherProfile(LatestVersion.Forge.ForgeVersionID, LatestVersion.Forge.InstallationName);
 
-                MessageBox.Show("This Modpack release includes a newer version of Forge. A new launcher profile has been created for you. Make sure to select " + LatestVersion.Forge.InstallationName + " next to the Play button, if it is not selected already!");
+                MessageBox.Show("This Modpack release includes a newer version of Forge. A new launcher profile has been created for you. Make sure to select " + LatestVersion.Forge.InstallationName + " next to the Play button, if it is not selected already! This change will not take effect until the next time you open your Minecraft Launcher, so if it open during this update, you'll need to close and re-open the window!");
             }
 
             MessageBox.Show("Modpack Updated!");
