@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Windows.Forms;
+using MLCModpackLauncher.MojangLauncherProfile;
 using Newtonsoft.Json;
 
 namespace MLCModpackLauncher
@@ -81,7 +82,6 @@ namespace MLCModpackLauncher
         private void InitializeMainForm()
         {
             btnUpdateModpack.Enabled = false;
-            btnUpdateForge.Enabled = false;
             CurrentVersion = null;
             LatestVersion = null;
             IsDownloadingPTR = false;
@@ -182,10 +182,15 @@ namespace MLCModpackLauncher
             UpdateModpackTooltip.IsBalloon = true;
             UpdateModpackTooltip.ShowAlways = true;
             UpdateModpackTooltip.SetToolTip(btnUpdateModpack, "Install the most recent modpack files!");
-
-            UpdateForgeTooltip.IsBalloon = true;
-            UpdateForgeTooltip.ShowAlways = true;
-            UpdateForgeTooltip.SetToolTip(btnUpdateForge, "Install the files necessary for Forge to run. This is only available when a modpack update requires a different version of Forge. You can download the necessary version manually, if preferred.");
+        }
+        private void AddNewForgeLauncherProfile(string forgeVersion, string installationName)
+        {
+            string launcherFilePath = Path.Combine(Options.MinecraftDirectory, ".minecraft\\launcher_profiles.json");
+            MojangLauncherProfileFile launcherFile = JsonConvert.DeserializeObject<MojangLauncherProfileFile>(File.ReadAllText(launcherFilePath));
+            launcherFile.AddNewProfile(forgeVersion, installationName);
+            string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "launcher_profiles.json");
+            string json = JsonConvert.SerializeObject(launcherFile, Formatting.Indented);
+            File.WriteAllText(savePath, json);
         }
 
         private void DownloadFileFTP(string downloadPath)
@@ -223,6 +228,12 @@ namespace MLCModpackLauncher
                 menuMain.Enabled = true;
             }
         }
+
+        private void btnExit_Click_1(object sender, EventArgs e)
+        {
+            ExitProgram();
+        }
+
         private string SelectFolder(Environment.SpecialFolder rootFolder)
         {
             string startingFolder = "";
@@ -360,7 +371,10 @@ namespace MLCModpackLauncher
 
                 foreach (var file in Directory.GetFiles(latestPackDirectory))
                 {
-                    File.Copy(file, Path.Combine(packDirectory, Path.GetFileName(file)));
+                    if(File.Exists(file) == false)
+                    {
+                        File.Copy(file, Path.Combine(packDirectory, Path.GetFileName(file)));
+                    }
                 }
 
                 MessageBox.Show("This Modpack Update included a ResourcePack! You can enable it in-game by going to Options > Resource Packs!");
@@ -378,7 +392,10 @@ namespace MLCModpackLauncher
 
                 foreach (var file in Directory.GetFiles(latestShadersDirectory))
                 {
-                    File.Copy(file, Path.Combine(shaderDirectory, Path.GetFileName(file)));
+                    if(File.Exists(file) == false)
+                    {
+                        File.Copy(file, Path.Combine(shaderDirectory, Path.GetFileName(file)));
+                    }
                 }
 
                 MessageBox.Show("This Modpack Update included a Shader Pack! You can enable it in-game by going to Options > Video Settings > Shaders!");
@@ -394,13 +411,14 @@ namespace MLCModpackLauncher
                 {
                     Directory.Move(folder, Path.Combine(forgeJarDirectory, Path.GetFileName(folder)));
                 }
-
                 foreach (var folder in Directory.GetDirectories(latestJsonDirectory))
                 {
                     Directory.Move(folder, Path.Combine(forgeVersionDirectory, Path.GetFileName(folder)));
                 }
 
-                MessageBox.Show("This Modpack Update included a newer version of Forge. You will need to create a new Installation from the Minecraft Launcher. If you're unsure on how to do this, check out http://mc.mlcgaming.com and select Help > Getting Started at the top!");
+                AddNewForgeLauncherProfile(LatestVersion.Forge.ForgeVersionID, LatestVersion.Forge.InstallationName);
+
+                MessageBox.Show("This Modpack release includes a newer version of Forge. A new launcher profile has been created for you. Make sure to select " + LatestVersion.Forge.InstallationName + " next to the Play button, if it is not selected already!");
             }
 
             MessageBox.Show("Modpack Updated!");

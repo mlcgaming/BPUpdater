@@ -44,20 +44,18 @@
             this.pTRDownloadDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.downloadPTRPackageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeProgramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnUpdateForge = new System.Windows.Forms.Button();
-            this.grpUpdate = new System.Windows.Forms.GroupBox();
             this.lblInstructions = new System.Windows.Forms.Label();
+            this.btnExit = new System.Windows.Forms.Button();
             this.menuMain.SuspendLayout();
-            this.grpUpdate.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnUpdateModpack
             // 
-            this.btnUpdateModpack.Location = new System.Drawing.Point(6, 16);
+            this.btnUpdateModpack.Location = new System.Drawing.Point(13, 158);
             this.btnUpdateModpack.Name = "btnUpdateModpack";
             this.btnUpdateModpack.Size = new System.Drawing.Size(80, 23);
             this.btnUpdateModpack.TabIndex = 0;
-            this.btnUpdateModpack.Text = "Modpack";
+            this.btnUpdateModpack.Text = "Apply Update";
             this.btnUpdateModpack.UseVisualStyleBackColor = true;
             this.btnUpdateModpack.Click += new System.EventHandler(this.BtnApplyUpdate_Click);
             // 
@@ -110,9 +108,9 @@
             // 
             // btnCheckUpdate
             // 
-            this.btnCheckUpdate.Location = new System.Drawing.Point(40, 129);
+            this.btnCheckUpdate.Location = new System.Drawing.Point(13, 129);
             this.btnCheckUpdate.Name = "btnCheckUpdate";
-            this.btnCheckUpdate.Size = new System.Drawing.Size(117, 23);
+            this.btnCheckUpdate.Size = new System.Drawing.Size(168, 23);
             this.btnCheckUpdate.TabIndex = 8;
             this.btnCheckUpdate.Text = "Check for Updates";
             this.btnCheckUpdate.UseVisualStyleBackColor = true;
@@ -120,9 +118,9 @@
             // 
             // prgbarMain
             // 
-            this.prgbarMain.Location = new System.Drawing.Point(5, 43);
+            this.prgbarMain.Location = new System.Drawing.Point(13, 187);
             this.prgbarMain.Name = "prgbarMain";
-            this.prgbarMain.Size = new System.Drawing.Size(160, 10);
+            this.prgbarMain.Size = new System.Drawing.Size(168, 10);
             this.prgbarMain.TabIndex = 9;
             // 
             // menuMain
@@ -183,27 +181,6 @@
             this.closeProgramToolStripMenuItem.Text = "Close Program";
             this.closeProgramToolStripMenuItem.Click += new System.EventHandler(this.closeProgramToolStripMenuItem_Click);
             // 
-            // btnUpdateForge
-            // 
-            this.btnUpdateForge.Location = new System.Drawing.Point(88, 16);
-            this.btnUpdateForge.Name = "btnUpdateForge";
-            this.btnUpdateForge.Size = new System.Drawing.Size(77, 23);
-            this.btnUpdateForge.TabIndex = 11;
-            this.btnUpdateForge.Text = "Forge";
-            this.btnUpdateForge.UseVisualStyleBackColor = true;
-            // 
-            // grpUpdate
-            // 
-            this.grpUpdate.Controls.Add(this.btnUpdateModpack);
-            this.grpUpdate.Controls.Add(this.prgbarMain);
-            this.grpUpdate.Controls.Add(this.btnUpdateForge);
-            this.grpUpdate.Location = new System.Drawing.Point(12, 154);
-            this.grpUpdate.Name = "grpUpdate";
-            this.grpUpdate.Size = new System.Drawing.Size(170, 58);
-            this.grpUpdate.TabIndex = 12;
-            this.grpUpdate.TabStop = false;
-            this.grpUpdate.Text = "Update..";
-            // 
             // lblInstructions
             // 
             this.lblInstructions.AutoSize = true;
@@ -215,12 +192,24 @@
     "als modpack or Forge!";
             this.lblInstructions.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
+            // btnExit
+            // 
+            this.btnExit.Location = new System.Drawing.Point(101, 158);
+            this.btnExit.Name = "btnExit";
+            this.btnExit.Size = new System.Drawing.Size(80, 23);
+            this.btnExit.TabIndex = 11;
+            this.btnExit.Text = "Exit";
+            this.btnExit.UseVisualStyleBackColor = true;
+            this.btnExit.Click += new System.EventHandler(this.btnExit_Click_1);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(194, 216);
-            this.Controls.Add(this.grpUpdate);
+            this.ClientSize = new System.Drawing.Size(194, 201);
+            this.Controls.Add(this.btnExit);
+            this.Controls.Add(this.prgbarMain);
+            this.Controls.Add(this.btnUpdateModpack);
             this.Controls.Add(this.btnCheckUpdate);
             this.Controls.Add(this.lblOnlineVersionText);
             this.Controls.Add(this.lblInstalledVersionText);
@@ -237,7 +226,6 @@
             this.Text = "Updater";
             this.menuMain.ResumeLayout(false);
             this.menuMain.PerformLayout();
-            this.grpUpdate.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -260,9 +248,8 @@
         private System.Windows.Forms.ToolStripMenuItem closeProgramToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem minecraftDirectoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pTRDownloadDirectoryToolStripMenuItem;
-        private System.Windows.Forms.Button btnUpdateForge;
-        private System.Windows.Forms.GroupBox grpUpdate;
         private System.Windows.Forms.Label lblInstructions;
+        private System.Windows.Forms.Button btnExit;
     }
 }
 
