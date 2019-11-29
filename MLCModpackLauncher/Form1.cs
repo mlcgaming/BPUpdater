@@ -404,21 +404,34 @@ namespace MLCModpackLauncher
             {
                 MessageBox.Show("Installing Updated Forge Files!");
 
+                if(Directory.Exists(forgeJarDirectory) == false)
+                {
+                    Directory.CreateDirectory(forgeJarDirectory);
+                }
+                if(Directory.Exists(forgeVersionDirectory) == false)
+                {
+                    Directory.CreateDirectory(forgeVersionDirectory);
+                }
+
                 string latestJarDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\BuddyPals\\bin\\forge\\JAR\\";
                 string latestJsonDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\BuddyPals\\bin\\forge\\JSON\\";
 
                 foreach (var folder in Directory.GetDirectories(latestJarDirectory))
                 {
-                    if(Directory.Exists(Path.Combine(forgeJarDirectory, Path.GetFileName(folder))) != true)
+                    var lastFolderName = Path.GetFileName(folder.TrimEnd('\\'));
+
+                    if (Directory.Exists(Path.Combine(forgeJarDirectory, Path.GetDirectoryName(lastFolderName))) == false)
                     {
-                        Directory.Move(folder, Path.Combine(forgeJarDirectory, Path.GetFileName(folder)));
+                        Directory.Move(folder, Path.Combine(forgeJarDirectory, Path.GetDirectoryName(lastFolderName)));
                     }
                 }
                 foreach (var folder in Directory.GetDirectories(latestJsonDirectory))
                 {
-                    if (Directory.Exists(Path.Combine(forgeVersionDirectory, Path.GetFileName(folder))) != true)
+                    var lastFolderName = Path.GetFileName(folder.TrimEnd('\\'));
+
+                    if (Directory.Exists(Path.Combine(forgeVersionDirectory, Path.GetDirectoryName(lastFolderName))) == false)
                     {
-                        Directory.Move(folder, Path.Combine(forgeVersionDirectory, Path.GetFileName(folder)));
+                        Directory.Move(folder, Path.Combine(forgeVersionDirectory, Path.GetDirectoryName(lastFolderName)));
                     }
                 }
 
