@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace MLCModpackLauncher
 {
@@ -12,7 +13,7 @@ namespace MLCModpackLauncher
         public string URL { get; private set; }
         public bool IncludesMods, IncludesConfig, IncludesResourcePack, IncludesShaders, IncludesForge;
         public Forge Forge { get; private set; }
-        
+
         public VersionFile(int id, string text, string name)
         {
             ID = id;
