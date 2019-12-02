@@ -46,6 +46,7 @@
             this.closeProgramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lblInstructions = new System.Windows.Forms.Label();
             this.btnExit = new System.Windows.Forms.Button();
+            this.openAppFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuMain.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -138,6 +139,7 @@
             this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.changeDirectoryToolStripMenuItem,
             this.downloadPTRPackageToolStripMenuItem,
+            this.openAppFolderToolStripMenuItem,
             this.closeProgramToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
@@ -202,6 +204,13 @@
             this.btnExit.UseVisualStyleBackColor = true;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click_1);
             // 
+            // openAppFolderToolStripMenuItem
+            // 
+            this.openAppFolderToolStripMenuItem.Name = "openAppFolderToolStripMenuItem";
+            this.openAppFolderToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
+            this.openAppFolderToolStripMenuItem.Text = "Open App Folder";
+            this.openAppFolderToolStripMenuItem.Click += new System.EventHandler(this.openAppFolderToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -250,6 +259,7 @@
         private System.Windows.Forms.ToolStripMenuItem pTRDownloadDirectoryToolStripMenuItem;
         private System.Windows.Forms.Label lblInstructions;
         private System.Windows.Forms.Button btnExit;
+        private System.Windows.Forms.ToolStripMenuItem openAppFolderToolStripMenuItem;
     }
 }
 

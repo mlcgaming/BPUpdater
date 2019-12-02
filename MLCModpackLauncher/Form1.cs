@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using System.Threading;
 using System.Windows.Forms;
 using MLCModpackLauncher.MojangLauncherProfile;
 using Newtonsoft.Json;
@@ -14,8 +16,8 @@ namespace MLCModpackLauncher
         OptionsConfiguration Options;
         ModpackVerFile CurrentVersion, LatestVersion;
         bool IsDownloadingPTR;
-        string ConfigFilePath, VersionFilePath;
-        ToolTip CurrentVersionTooltip, LatestVersionTooltip, CheckForUpdateButtonTooltip, UpdateModpackTooltip, UpdateForgeTooltip;
+        string ConfigFilePath, VersionFilePath, LogFilePath;
+        ToolTip CurrentVersionTooltip, LatestVersionTooltip, CheckForUpdateButtonTooltip, UpdateModpackTooltip;
 
         public MainForm()
         {
@@ -29,6 +31,7 @@ namespace MLCModpackLauncher
         }
         private void BtnApplyUpdate_Click(object sender, EventArgs e)
         {
+            LatestVersion.SetModpackFolders();
             menuMain.Enabled = false;
             DownloadFileFTP(Options.AppDirectory);
         }
@@ -81,30 +84,52 @@ namespace MLCModpackLauncher
 
         private void InitializeMainForm()
         {
+            ConfigFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\") + "updater.conf";
+            VersionFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\") + "modpack.ver";
+            LogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\") + "updater.log";
+
+            if (File.Exists(LogFilePath) == false)
+            {
+                var myFile = File.Create(LogFilePath);
+                myFile.Close();
+                AppendLog("Created new updater.log file.", false);
+            }
+
+            AppendLog("Initializing MainForm");
+
             btnUpdateModpack.Enabled = false;
             CurrentVersion = null;
             LatestVersion = null;
             IsDownloadingPTR = false;
-            ConfigFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\") + "updater.conf";
-            VersionFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\") + "modpack.ver";
 
-            if(File.Exists(VersionFilePath) == false)
+            AppendLog("ConfigFilePath: " + ConfigFilePath);
+            AppendLog("VersionFilePath: " + VersionFilePath);
+            AppendLog("LogFilePath: " + LogFilePath);
+
+            if (File.Exists(VersionFilePath) == false)
             {
+                AppendLog("No Current Modpack Version File, Creating a Dummy File");
+
                 ModpackVerFile newFile = new ModpackVerFile(0, "N/A", "N/A");
                 string newFileJson = JsonConvert.SerializeObject(newFile, Formatting.Indented);
                 File.WriteAllText(VersionFilePath, newFileJson);
+
+                AppendLog("Dummy File Instantiated and Serialized");
             }
 
             try
             {
                 // Check for older VersionFile formats and convert to a new ModpackVerFile object
+                AppendLog("Reading " + VersionFilePath);
                 VersionFile oldVersionFile = JsonConvert.DeserializeObject<VersionFile>(File.ReadAllText(VersionFilePath));
                 if(oldVersionFile != null)
                 {
+                    AppendLog("modpack.ver is old format. Updating to new format.");
                     File.Delete(VersionFilePath);
                     ModpackVerFile newVersionFile = ModpackVerFile.ConvertFromVersionFile(oldVersionFile);
                     string newVersionFileJson = JsonConvert.SerializeObject(newVersionFile, Formatting.Indented);
                     File.WriteAllText(VersionFilePath, newVersionFileJson);
+                    AppendLog(VersionFilePath + " updated to new format.");
                 }
             }
             finally
@@ -118,28 +143,41 @@ namespace MLCModpackLauncher
         {
             string optionsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\");
 
+            AppendLog("Checking for BuddyPals AppData at " + optionsDirectory);
+
             if (Directory.Exists(optionsDirectory) == true)
             {
+                AppendLog("Folder Found, Looking for updater.conf");
+
                 if (File.Exists(Path.Combine(optionsDirectory, "config.json")) == true)
                 {
+                    AppendLog("Older 'config.json' found.");
+
                     if (File.Exists(Path.Combine(optionsDirectory, "updater.conf")) == false)
                     {
+                        AppendLog("config.json present, but no updater.conf; Converting config.json to updater.conf standard...");
                         // Use old config file to make new updater.settings file
                         Options = JsonConvert.DeserializeObject<OptionsConfiguration>(File.ReadAllText(Path.Combine(optionsDirectory, "config.json")));
                         string newFile = JsonConvert.SerializeObject(Options, Formatting.Indented);
                         File.WriteAllText(Path.Combine(optionsDirectory, "updater.conf"), newFile);
 
+                        AppendLog("Success! New updater.conf located at " + Path.Combine(optionsDirectory, "updater.conf"));
+
                         // Then Remove the Old File
                         File.Delete(Path.Combine(optionsDirectory, "config.json"));
+
+                        AppendLog("Older config.json removed.");
                     }
                     else
                     {
                         // Just remove the old Config File
+                        AppendLog("Both config.json and updater.conf present. Deleting config.json.");
                         File.Delete(Path.Combine(optionsDirectory, "config.json"));
                     }
                 }
                 else
                 {
+                    AppendLog("No Configuration File Detected. Creating Default Configuration File.");
                     Options = new OptionsConfiguration();
                     UpdateConfigJSON();
                 }
@@ -154,20 +192,27 @@ namespace MLCModpackLauncher
         private void CleanupAppDataDirectory()
         {
             // Check for and Remove old BPVersion file formats
+            AppendLog("Looking for old modpack version file at " + Path.Combine(Options.AppDirectory, "BPVersion.json"));
             if(File.Exists(Path.Combine(Options.AppDirectory, "BPVersion.json")) == true)
             {
+                AppendLog("File Found. Checking for current modpack.ver file");
                 if (File.Exists(Path.Combine(Options.AppDirectory, "modpack.ver")) == false)
                 {
+                    AppendLog("No modpack.ver file found. Converting BPVersion.json to modpack.ver standard.");
                     // Use old BPVersion file to make new 'modpack.ver' file
                     LatestVersion = JsonConvert.DeserializeObject<ModpackVerFile>(File.ReadAllText(Path.Combine(Options.AppDirectory, "BPVersion.json")));
                     string newFile = JsonConvert.SerializeObject(LatestVersion, Formatting.Indented);
                     File.WriteAllText(Path.Combine(Options.AppDirectory, "modpack.ver"), newFile);
+
+                    AppendLog("Success! Removing older BPVersion.json file");
 
                     // Then Remove the Old File
                     File.Delete(Path.Combine(Options.AppDirectory, "BPVersion.json"));
                 }
                 else
                 {
+                    AppendLog("Newer modpack.ver found. Removing older files.");
+
                     // Just remove the old BPVersion File
                     File.Delete(Path.Combine(Options.AppDirectory, "BPVersion.json"));
                 }
@@ -187,7 +232,6 @@ namespace MLCModpackLauncher
             LatestVersionTooltip = new ToolTip();
             CheckForUpdateButtonTooltip = new ToolTip();
             UpdateModpackTooltip = new ToolTip();
-            UpdateForgeTooltip = new ToolTip();
 
             CurrentVersionTooltip.IsBalloon = true;
             CurrentVersionTooltip.ShowAlways = true;
@@ -207,18 +251,20 @@ namespace MLCModpackLauncher
         }
         private void AddNewForgeLauncherProfile(string forgeVersion, string installationName)
         {
+            AppendLog("Creating Forge package for Launcher Profile.");
             string launcherFilePath = Path.Combine(Options.MinecraftDirectory, "launcher_profiles.json");
             MojangLauncherProfileFile launcherFile = JsonConvert.DeserializeObject<MojangLauncherProfileFile>(File.ReadAllText(launcherFilePath));
             launcherFile.AddNewProfile(forgeVersion, installationName);
             string savePath = Path.Combine(Options.MinecraftDirectory, "launcher_profiles.json");
             string json = JsonConvert.SerializeObject(launcherFile, Formatting.Indented);
             File.WriteAllText(savePath, json);
+            AppendLog("Success! Updated launcher profiles located at " + savePath);
         }
 
         private void DownloadFileFTP(string downloadPath)
         {
             string fileName = LatestVersion.FileName;
-
+            AppendLog("Downloading latest modpack from " + downloadPath);
             using (WebClient request = new WebClient())
             {
                 request.Credentials = new NetworkCredential("ftpuser", "mlcTech19!");
@@ -235,6 +281,7 @@ namespace MLCModpackLauncher
         {
             if (IsDownloadingPTR == false)
             {
+                AppendLog("Download completed! Proceeding to modpack update.");
                 MessageBox.Show("The download is completed!");
                 MessageBox.Show("Modpack will now update!");
 
@@ -242,6 +289,7 @@ namespace MLCModpackLauncher
             }
             else
             {
+                AppendLog("PTR Files downloaded successfully. Returning to main thread.");
                 MessageBox.Show("PTR Zip Downloaded!");
                 string optionsFile = JsonConvert.SerializeObject(Options, Formatting.Indented);
                 File.WriteAllText(Options.AppDirectory + "/config.json", optionsFile);
@@ -253,6 +301,7 @@ namespace MLCModpackLauncher
 
         private void btnExit_Click_1(object sender, EventArgs e)
         {
+            AppendLog("Exit Button invoked.");
             ExitProgram();
         }
 
@@ -312,25 +361,35 @@ namespace MLCModpackLauncher
                 return startingFolder;
             }
         }
+
+        private void openAppFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start("explorer.exe", Options.AppDirectory);
+        }
+
         private void UpdateConfigJSON()
         {
             string optionsFile = JsonConvert.SerializeObject(Options, Formatting.Indented);
             File.WriteAllText(ConfigFilePath, optionsFile);
+            AppendLog(ConfigFilePath + " updated.");
         }
         private void CheckForUpdate()
         {
+            AppendLog("Downloading modpack.ver from Master Server to check for update.");
             // DOWNLOAD MC.MLCGAMING.COM/DOWNLOADS/MPVERSION.JSON
             // PARSE FILE INTO VERSIONINFO OBJECT (LATESTVERSION)
             LatestVersion = DownloadMPVersionJson("ftp://mc.mlcgaming.com/modpack/modpack.ver");
-
+            AppendLog("Success!");
             // LOOK FOR MPVERSION.JSON IN APPDATA\BUDDYPALS\ FOLDER
-
+            AppendLog("Checking for current modpack.ver file at " + VersionFilePath);
             if (File.Exists(VersionFilePath) == true)
             {
+                AppendLog(VersionFilePath + " found! Loading current version file.");
                 CurrentVersion = JsonConvert.DeserializeObject<ModpackVerFile>(File.ReadAllText(VersionFilePath));
             }
             else
             {
+                AppendLog("No current modpack.ver found. Creating a dummy file.");
                 CurrentVersion = new ModpackVerFile(0, "N/A", "NULL");
             }
 
@@ -365,11 +424,17 @@ namespace MLCModpackLauncher
             string zipFilePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\BuddyPals\\" + LatestVersion.FileName;
             string extractionPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\BuddyPals\\" + "bin";
 
+            AppendLog("Logging modpack file as " + zipFilePath);
+            AppendLog("Logging extraction path as " + extractionPath);
+
+            AppendLog("Checking for Extraction Path.");
             if (Directory.Exists(extractionPath) == true)
             {
+                AppendLog("Extraction Path Already Exists. Clearing out old data.");
                 Directory.Delete(extractionPath, true);
             }
 
+            AppendLog("Unzipping Modpack into Extraction Path");
             ZipFile.ExtractToDirectory(zipFilePath, extractionPath);
 
             // DELETE MODS AND CONFIG FOLDERS
@@ -381,87 +446,134 @@ namespace MLCModpackLauncher
             string minecraftForgeJsonDirectory = Path.Combine(Options.MinecraftDirectory, "versions");
             string minecraftForgeJarDirectory = Path.Combine(Options.MinecraftDirectory, "libraries\\net\\minecraftforge\\forge\\");
 
+            AppendLog("Logging Minecraft Mods Directory as " + minecraftModsDirectory);
+            AppendLog("Logging Minecraft Config Directory as " + minecraftConfigDirectory);
+            AppendLog("Logging Minecraft Resource Pack Directory as " + minecraftPackDirectory);
+            AppendLog("Logging Minecraft Shaders Directory as " + minecraftShaderDirectory);
+            AppendLog("Logging Minecraft Scripts Directory as " + minecraftScriptsDirectory);
+            AppendLog("Logging Minecraft Forge JSON Directory as " + minecraftForgeJsonDirectory);
+            AppendLog("Logging Minecraft Forge JAR Directory as " + minecraftForgeJarDirectory);
+
+            AppendLog("Checking if modpack includes mods");
             if (LatestVersion.ToBeUpdated["mods"] == true)
             {
+                AppendLog("Mods Included.  Logging new mods directory as " + LatestVersion.ModpackFolders["mods"]);
                 MessageBox.Show("Updating Mods!");
 
+                AppendLog("Checking for existing mod folder at " + minecraftModsDirectory);
                 if (Directory.Exists(minecraftModsDirectory) == true)
                 {
+                    AppendLog("Folder found. Removing folder.");
                     Directory.Delete(minecraftModsDirectory, true);
                 }
 
+                AppendLog("Attempting to move folder from " + LatestVersion.ModpackFolders["mods"] + " to " + minecraftModsDirectory);
                 Directory.Move(LatestVersion.ModpackFolders["mods"], minecraftModsDirectory);
             }
+            AppendLog("Checking if modpack includes config");
             if (LatestVersion.ToBeUpdated["config"] == true)
             {
+                AppendLog("Config Included.  Logging new config directory as " + LatestVersion.ModpackFolders["config"]);
                 MessageBox.Show("Updating Configs!");
 
+                AppendLog("Checking for existing folder at " + minecraftConfigDirectory);
                 if (Directory.Exists(minecraftConfigDirectory) == true)
                 {
+                    AppendLog("Folder found. Removing folder.");
                     Directory.Delete(minecraftConfigDirectory, true);
                 }
 
+                AppendLog("Attempting to move folder from " + LatestVersion.ModpackFolders["config"] + " to " + minecraftConfigDirectory);
                 Directory.Move(LatestVersion.ModpackFolders["config"], minecraftConfigDirectory);
+                AppendLog("Move Successful!");
             }
+            AppendLog("Checking if modpack includes Resource Packs");
             if (LatestVersion.ToBeUpdated["resourcePacks"] == true)
             {
+                AppendLog("Resource Pack Included.  Logging new resourcepacks directory as " + LatestVersion.ModpackFolders["resourcePacks"]);
                 MessageBox.Show("Installing Resource Packs!");
 
+                AppendLog("Checking for existing folder at " + minecraftPackDirectory);
                 if (Directory.Exists(minecraftPackDirectory) == false)
                 {
+                    AppendLog("No such path found. Creating new directory.");
                     Directory.CreateDirectory(minecraftPackDirectory);
                 }
 
+                AppendLog("Moving Files from " + LatestVersion.ModpackFolders["resourcePacks"] + " to " + minecraftPackDirectory);
                 foreach (var file in Directory.GetFiles(LatestVersion.ModpackFolders["resourcePacks"]))
                 {
                     if(File.Exists(file) == false)
                     {
+                        AppendLog("Moving " + Path.GetFileName(file) + " to " + minecraftPackDirectory);
                         File.Copy(file, Path.Combine(minecraftPackDirectory, Path.GetFileName(file)));
                     }
                 }
 
+                AppendLog("Move Successful!");
+
                 MessageBox.Show("This Modpack Update included a ResourcePack! You can enable it in-game by going to Options > Resource Packs!");
             }
+            AppendLog("Checking if modpack includes Shaders");
             if (LatestVersion.ToBeUpdated["shaderPacks"] == true)
             {
+                AppendLog("Shaders Included.  Logging new shaders directory as " + LatestVersion.ModpackFolders["shaderPacks"]);
                 MessageBox.Show("Installing Shaders!");
 
+                AppendLog("Checking for existing folder at " + minecraftShaderDirectory);
                 if (Directory.Exists(minecraftShaderDirectory) == false)
                 {
+                    AppendLog("No such path found. Creating new directory.");
                     Directory.CreateDirectory(minecraftShaderDirectory);
                 }
 
+                AppendLog("Moving Files from " + LatestVersion.ModpackFolders["shaderPacks"] + " to " + minecraftShaderDirectory);
                 foreach (var file in Directory.GetFiles(LatestVersion.ModpackFolders["shaderPacks"]))
                 {
                     if(File.Exists(file) == false)
                     {
+                        AppendLog("Moving " + Path.GetFileName(file) + " to " + minecraftShaderDirectory);
                         File.Copy(file, Path.Combine(minecraftShaderDirectory, Path.GetFileName(file)));
                     }
                 }
 
+                AppendLog("Move Successful!");
+
                 MessageBox.Show("This Modpack Update included a Shader Pack! You can enable it in-game by going to Options > Video Settings > Shaders!");
             }
+            AppendLog("Checking if modpack includes Scripts");
             if (LatestVersion.ToBeUpdated["scripts"] == true)
             {
+                AppendLog("Scripts Included.  Logging new scripts directory as " + LatestVersion.ModpackFolders["scripts"]);
                 MessageBox.Show("Updating Scripts!");
 
+                AppendLog("Checking for existing directory " + minecraftScriptsDirectory);
                 if (Directory.Exists(minecraftScriptsDirectory) == true)
                 {
+                    AppendLog("Removing " + minecraftScriptsDirectory);
                     Directory.Delete(minecraftScriptsDirectory, true);
                 }
 
+                AppendLog("Copying " + LatestVersion.ModpackFolders["scripts"] + " to " + minecraftScriptsDirectory);
                 Directory.Move(LatestVersion.ModpackFolders["scripts"], minecraftScriptsDirectory);
+                AppendLog("Move Successful!");
             }
+            AppendLog("Checking if modpack includes Forge files");
             if (LatestVersion.ToBeUpdated["forgeFiles"] == true)
             {
+                AppendLog("Forge Included.  Logging new config directory as " + LatestVersion.ModpackFolders["config"]);
                 MessageBox.Show("Installing Updated Forge Files!");
 
+                AppendLog("Checking for " + minecraftForgeJarDirectory);
                 if(Directory.Exists(minecraftForgeJarDirectory) == false)
                 {
+                    AppendLog("Directory Not Found. Creating now.");
                     Directory.CreateDirectory(minecraftForgeJarDirectory);
                 }
-                if(Directory.Exists(minecraftForgeJsonDirectory) == false)
+                AppendLog("Checking for " + minecraftForgeJsonDirectory);
+                if (Directory.Exists(minecraftForgeJsonDirectory) == false)
                 {
+                    AppendLog("Directory Not Found. Creating now.");
                     Directory.CreateDirectory(minecraftForgeJsonDirectory);
                 }
 
@@ -469,24 +581,36 @@ namespace MLCModpackLauncher
                 string minecraftJarDirectory = Path.Combine(Options.MinecraftDirectory, "libraries\\net\\minecraftforge\\forge\\");
                 string minecraftJsonDirectory = Path.Combine(Options.MinecraftDirectory, "versions\\");
 
+                AppendLog("Logging Minecraft Jar Directory as " + minecraftJarDirectory);
+                AppendLog("Logging Minecraft Json Directory as " + minecraftJsonDirectory);
+
                 // GET FOLDER NAMES HERE
+                AppendLog("Attempting to move folder structure from " + LatestVersion.ModpackFolders["forgeJarRoot"] + " to " + minecraftJsonDirectory);
                 CopyAll(new DirectoryInfo(LatestVersion.ModpackFolders["forgeJarRoot"]), new DirectoryInfo(minecraftJarDirectory));
+                AppendLog("Move Successful!");
+                AppendLog("Attempting to move folder structure from " + LatestVersion.ModpackFolders["forgeJsonRoot"] + " to " + minecraftJsonDirectory);
                 CopyAll(new DirectoryInfo(LatestVersion.ModpackFolders["forgeJsonRoot"]), new DirectoryInfo(minecraftJsonDirectory));
+                AppendLog("Move Successful!");
 
                 AddNewForgeLauncherProfile(LatestVersion.Forge.ForgeVersionID, LatestVersion.Forge.InstallationName);
 
                 MessageBox.Show("This Modpack release includes a newer version of Forge. A new launcher profile has been created for you. Make sure to select " + LatestVersion.Forge.InstallationName + " next to the Play button, if it is not selected already! This change will not take effect until the next time you open your Minecraft Launcher, so if it open during this update, you'll need to close and re-open the window!");
             }
 
+            AppendLog("Modpack Update Process Complete. Moving onto Cleanup.");
             MessageBox.Show("Modpack Updated!");
             MessageBox.Show("Cleaning Up...Almost Finished!");
 
+            AppendLog("Writing latest version file into " + VersionFilePath);
             string MPVersionJson = JsonConvert.SerializeObject(LatestVersion, Formatting.Indented);
             File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\BuddyPals\\modpack.ver", MPVersionJson);
 
+            AppendLog("Deleting Extraction Path.");
             Directory.Delete(extractionPath, true);
+            AppendLog("Deleting Modpack Zip File.");
             File.Delete(zipFilePath);
 
+            AppendLog("All processes completed. Closing Application.");
             MessageBox.Show("All Done! Enjoy!");
             Close();
         }
@@ -510,6 +634,27 @@ namespace MLCModpackLauncher
             // PARSE FILE INTO VERSIONINFO OBJECT (LATESTVERSION)
             StreamReader reader = new StreamReader(responseStream);
             return JsonConvert.DeserializeObject<ModpackVerFile>(reader.ReadToEnd());
+        }
+
+        private void AppendLog(string logMessage, bool isNewLine = true)
+        {
+            string entry = "";
+
+            if(isNewLine == true)
+            {
+                entry = Environment.NewLine;
+                entry += $"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}";
+                entry += ": " + logMessage;
+
+                File.AppendAllText(LogFilePath, entry);
+            }
+            else
+            {
+                entry += $"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}";
+                entry += ": " + logMessage;
+
+                File.AppendAllText(LogFilePath, entry);
+            }
         }
     }
 }

@@ -81,39 +81,66 @@ namespace MLCModpackLauncher
 
             return new ModpackVerFile(obj.ID, obj.IsActive, obj.Text, obj.Name, obj.FileName, obj.URL, includedFiles, 2, obj.Forge);
         }
-        private void SetModpackFolders()
+        public void SetModpackFolders()
         {
-            ModpackFolders = new Dictionary<string, string>();
-
-            if(ToBeUpdated["mods"] == true)
+            if(ModpackFolders == null)
             {
-                ModpackFolders.Add("mods", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\mods\\"));
+                ModpackFolders = new Dictionary<string, string>();
+
+                if (ToBeUpdated["mods"] == true)
+                {
+                    ModpackFolders.Add("mods", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\mods\\"));
+                }
+                if (ToBeUpdated["config"] == true)
+                {
+                    ModpackFolders.Add("config", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\config\\"));
+                }
+                if (ToBeUpdated["resourcePacks"] == true)
+                {
+                    ModpackFolders.Add("resourcePacks", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\resourcepacks\\"));
+                }
+                if (ToBeUpdated["shaderPacks"] == true)
+                {
+                    ModpackFolders.Add("shaderPacks", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\shaderpacks\\"));
+                }
+                if (ToBeUpdated["scripts"] == true)
+                {
+                    ModpackFolders.Add("scripts", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\scripts"));
+                }
+                if (ToBeUpdated["forgeFiles"] == true)
+                {
+                    ModpackFolders.Add("forgeJarRoot", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\forge\\libraries"));
+                    ModpackFolders.Add("forgeJsonRoot", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\forge\\versions"));
+                }
             }
-
-            if(ToBeUpdated["config"] == true)
+            else
             {
-                ModpackFolders.Add("config", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\config\\"));
-            }
-
-            if(ToBeUpdated["resourcePacks"] == true)
-            {
-                ModpackFolders.Add("resourcePacks", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\resourcepacks\\"));
-            }
-
-            if(ToBeUpdated["shaderPacks"] == true)
-            {
-                ModpackFolders.Add("shaderPacks", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\shaderpacks\\"));
-            }
-
-            if(ToBeUpdated["scripts"] == true)
-            {
-                ModpackFolders.Add("scripts", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\scripts"));
-            }
-
-            if(ToBeUpdated["forgeFiles"] == true)
-            {
-                ModpackFolders.Add("forgeJarRoot", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\forge\\libraries"));
-                ModpackFolders.Add("forgeJsonRoot", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\forge\\versions"));
+                // Update Existing ModpackFolders with unique entries.
+                if (ToBeUpdated["mods"] == true)
+                {
+                    ModpackFolders["mods"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\mods\\");
+                }
+                if (ToBeUpdated["config"] == true)
+                {
+                    ModpackFolders["config"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\config\\");
+                }
+                if (ToBeUpdated["resourcePacks"] == true)
+                {
+                    ModpackFolders["resourcePacks"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\resourcepacks\\");
+                }
+                if (ToBeUpdated["shaderPacks"] == true)
+                {
+                    ModpackFolders["shaderPacks"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\shaderpacks\\");
+                }
+                if (ToBeUpdated["scripts"] == true)
+                {
+                    ModpackFolders["scripts"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\scripts");
+                }
+                if (ToBeUpdated["forgeFiles"] == true)
+                {
+                    ModpackFolders["forgeJarRoot"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\forge\\libraries");
+                    ModpackFolders["forgeJsonRoot"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\forge\\versions");
+                }
             }
         }
     }
