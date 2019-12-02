@@ -36,18 +36,21 @@
             this.lblInstalledVersionText = new System.Windows.Forms.Label();
             this.lblOnlineVersionText = new System.Windows.Forms.Label();
             this.btnCheckUpdate = new System.Windows.Forms.Button();
-            this.prgbarMain = new System.Windows.Forms.ProgressBar();
             this.menuMain = new System.Windows.Forms.MenuStrip();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.changeDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.minecraftDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pTRDownloadDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.downloadPTRPackageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openAppFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeProgramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lblInstructions = new System.Windows.Forms.Label();
             this.btnExit = new System.Windows.Forms.Button();
-            this.openAppFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.statusMain = new System.Windows.Forms.StatusStrip();
+            this.statusMainProgressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.lblStatus = new System.Windows.Forms.Label();
             this.menuMain.SuspendLayout();
+            this.statusMain.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnUpdateModpack
@@ -117,13 +120,6 @@
             this.btnCheckUpdate.UseVisualStyleBackColor = true;
             this.btnCheckUpdate.Click += new System.EventHandler(this.BtnCheckUpdate_Click);
             // 
-            // prgbarMain
-            // 
-            this.prgbarMain.Location = new System.Drawing.Point(13, 187);
-            this.prgbarMain.Name = "prgbarMain";
-            this.prgbarMain.Size = new System.Drawing.Size(168, 10);
-            this.prgbarMain.TabIndex = 9;
-            // 
             // menuMain
             // 
             this.menuMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -176,6 +172,13 @@
             this.downloadPTRPackageToolStripMenuItem.Text = "Download PTR Package";
             this.downloadPTRPackageToolStripMenuItem.Click += new System.EventHandler(this.downloadPTRPackageToolStripMenuItem_Click);
             // 
+            // openAppFolderToolStripMenuItem
+            // 
+            this.openAppFolderToolStripMenuItem.Name = "openAppFolderToolStripMenuItem";
+            this.openAppFolderToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
+            this.openAppFolderToolStripMenuItem.Text = "Open App Folder";
+            this.openAppFolderToolStripMenuItem.Click += new System.EventHandler(this.openAppFolderToolStripMenuItem_Click);
+            // 
             // closeProgramToolStripMenuItem
             // 
             this.closeProgramToolStripMenuItem.Name = "closeProgramToolStripMenuItem";
@@ -204,20 +207,39 @@
             this.btnExit.UseVisualStyleBackColor = true;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click_1);
             // 
-            // openAppFolderToolStripMenuItem
+            // statusMain
             // 
-            this.openAppFolderToolStripMenuItem.Name = "openAppFolderToolStripMenuItem";
-            this.openAppFolderToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
-            this.openAppFolderToolStripMenuItem.Text = "Open App Folder";
-            this.openAppFolderToolStripMenuItem.Click += new System.EventHandler(this.openAppFolderToolStripMenuItem_Click);
+            this.statusMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusMainProgressBar});
+            this.statusMain.Location = new System.Drawing.Point(0, 169);
+            this.statusMain.Name = "statusMain";
+            this.statusMain.Size = new System.Drawing.Size(194, 22);
+            this.statusMain.TabIndex = 12;
+            this.statusMain.Text = "TEST";
+            // 
+            // statusMainProgressBar
+            // 
+            this.statusMainProgressBar.Name = "statusMainProgressBar";
+            this.statusMainProgressBar.Size = new System.Drawing.Size(175, 16);
+            // 
+            // lblStatus
+            // 
+            this.lblStatus.AutoSize = true;
+            this.lblStatus.Location = new System.Drawing.Point(2, 187);
+            this.lblStatus.Name = "lblStatus";
+            this.lblStatus.Size = new System.Drawing.Size(116, 13);
+            this.lblStatus.TabIndex = 13;
+            this.lblStatus.Text = "Downloading Update...";
+            this.lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(194, 201);
+            this.ClientSize = new System.Drawing.Size(194, 191);
+            this.Controls.Add(this.lblStatus);
+            this.Controls.Add(this.statusMain);
             this.Controls.Add(this.btnExit);
-            this.Controls.Add(this.prgbarMain);
             this.Controls.Add(this.btnUpdateModpack);
             this.Controls.Add(this.btnCheckUpdate);
             this.Controls.Add(this.lblOnlineVersionText);
@@ -235,6 +257,8 @@
             this.Text = "Updater";
             this.menuMain.ResumeLayout(false);
             this.menuMain.PerformLayout();
+            this.statusMain.ResumeLayout(false);
+            this.statusMain.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -249,7 +273,6 @@
         private System.Windows.Forms.Label lblInstalledVersionText;
         private System.Windows.Forms.Label lblOnlineVersionText;
         private System.Windows.Forms.Button btnCheckUpdate;
-        private System.Windows.Forms.ProgressBar prgbarMain;
         private System.Windows.Forms.MenuStrip menuMain;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem changeDirectoryToolStripMenuItem;
@@ -260,6 +283,9 @@
         private System.Windows.Forms.Label lblInstructions;
         private System.Windows.Forms.Button btnExit;
         private System.Windows.Forms.ToolStripMenuItem openAppFolderToolStripMenuItem;
+        private System.Windows.Forms.StatusStrip statusMain;
+        private System.Windows.Forms.ToolStripProgressBar statusMainProgressBar;
+        private System.Windows.Forms.Label lblStatus;
     }
 }
 

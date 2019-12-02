@@ -18,6 +18,7 @@ namespace MLCModpackLauncher
         bool IsDownloadingPTR;
         string ConfigFilePath, VersionFilePath, LogFilePath;
         ToolTip CurrentVersionTooltip, LatestVersionTooltip, CheckForUpdateButtonTooltip, UpdateModpackTooltip;
+        int ProgressCounter, ProgressCompleted;
 
         public MainForm()
         {
@@ -31,6 +32,8 @@ namespace MLCModpackLauncher
         }
         private void BtnApplyUpdate_Click(object sender, EventArgs e)
         {
+            lblStatus.Text = "Downloading Update...";
+            ShowStatus();
             LatestVersion.SetModpackFolders();
             menuMain.Enabled = false;
             DownloadFileFTP(Options.AppDirectory);
@@ -84,6 +87,8 @@ namespace MLCModpackLauncher
 
         private void InitializeMainForm()
         {
+            HideStatus();
+
             ConfigFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\") + "updater.conf";
             VersionFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\") + "modpack.ver";
             LogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\") + "updater.log";
@@ -275,16 +280,28 @@ namespace MLCModpackLauncher
         }
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            prgbarMain.Value = e.ProgressPercentage;
+            statusMainProgressBar.Value = e.ProgressPercentage;
+            lblStatus.Text = "Downloading Update.." + "(" + statusMainProgressBar.Value.ToString() + "%)";
         }
         private void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
         {
             if (IsDownloadingPTR == false)
             {
-                AppendLog("Download completed! Proceeding to modpack update.");
-                MessageBox.Show("The download is completed!");
-                MessageBox.Show("Modpack will now update!");
+                ProgressCounter = 1;
+                ProgressCompleted = 0;
 
+                foreach(var key in LatestVersion.ToBeUpdated.Keys)
+                {
+                    if(LatestVersion.ToBeUpdated[key] == true)
+                    {
+                        ProgressCounter += 1;
+                    }
+                }
+
+                AppendLog("Download completed! Proceeding to modpack update.");
+                lblStatus.Text = "Unpacking Modpack Files";
+                statusMainProgressBar.Value = 0;
+                Thread.Sleep(2000);
                 UpdateModpack();
             }
             else
@@ -294,7 +311,7 @@ namespace MLCModpackLauncher
                 string optionsFile = JsonConvert.SerializeObject(Options, Formatting.Indented);
                 File.WriteAllText(Options.AppDirectory + "/config.json", optionsFile);
                 IsDownloadingPTR = false;
-                prgbarMain.Value = 0;
+                statusMainProgressBar.Value = 0;
                 menuMain.Enabled = true;
             }
         }
@@ -457,9 +474,8 @@ namespace MLCModpackLauncher
             AppendLog("Checking if modpack includes mods");
             if (LatestVersion.ToBeUpdated["mods"] == true)
             {
+                lblStatus.Text = "Updating Mods";
                 AppendLog("Mods Included.  Logging new mods directory as " + LatestVersion.ModpackFolders["mods"]);
-                MessageBox.Show("Updating Mods!");
-
                 AppendLog("Checking for existing mod folder at " + minecraftModsDirectory);
                 if (Directory.Exists(minecraftModsDirectory) == true)
                 {
@@ -469,13 +485,17 @@ namespace MLCModpackLauncher
 
                 AppendLog("Attempting to move folder from " + LatestVersion.ModpackFolders["mods"] + " to " + minecraftModsDirectory);
                 Directory.Move(LatestVersion.ModpackFolders["mods"], minecraftModsDirectory);
+
+                lblStatus.Text = "Mods Updated";
+                ProgressCompleted += 1;
+                statusMainProgressBar.Value = GetProgressComplete();
+                Thread.Sleep(2000);
             }
             AppendLog("Checking if modpack includes config");
             if (LatestVersion.ToBeUpdated["config"] == true)
             {
+                lblStatus.Text = "Updating Configs";
                 AppendLog("Config Included.  Logging new config directory as " + LatestVersion.ModpackFolders["config"]);
-                MessageBox.Show("Updating Configs!");
-
                 AppendLog("Checking for existing folder at " + minecraftConfigDirectory);
                 if (Directory.Exists(minecraftConfigDirectory) == true)
                 {
@@ -486,12 +506,17 @@ namespace MLCModpackLauncher
                 AppendLog("Attempting to move folder from " + LatestVersion.ModpackFolders["config"] + " to " + minecraftConfigDirectory);
                 Directory.Move(LatestVersion.ModpackFolders["config"], minecraftConfigDirectory);
                 AppendLog("Move Successful!");
+
+                lblStatus.Text = "Configs Updated";
+                ProgressCompleted += 1;
+                statusMainProgressBar.Value = GetProgressComplete();
+                Thread.Sleep(2000);
             }
             AppendLog("Checking if modpack includes Resource Packs");
             if (LatestVersion.ToBeUpdated["resourcePacks"] == true)
             {
+                lblStatus.Text = "Installing Resource Packs";
                 AppendLog("Resource Pack Included.  Logging new resourcepacks directory as " + LatestVersion.ModpackFolders["resourcePacks"]);
-                MessageBox.Show("Installing Resource Packs!");
 
                 AppendLog("Checking for existing folder at " + minecraftPackDirectory);
                 if (Directory.Exists(minecraftPackDirectory) == false)
@@ -512,13 +537,16 @@ namespace MLCModpackLauncher
 
                 AppendLog("Move Successful!");
 
-                MessageBox.Show("This Modpack Update included a ResourcePack! You can enable it in-game by going to Options > Resource Packs!");
+                lblStatus.Text = "Resource Pack Installed";
+                ProgressCompleted += 1;
+                statusMainProgressBar.Value = GetProgressComplete();
+                Thread.Sleep(2000);
             }
             AppendLog("Checking if modpack includes Shaders");
             if (LatestVersion.ToBeUpdated["shaderPacks"] == true)
             {
+                lblStatus.Text = "Installing Shaders";
                 AppendLog("Shaders Included.  Logging new shaders directory as " + LatestVersion.ModpackFolders["shaderPacks"]);
-                MessageBox.Show("Installing Shaders!");
 
                 AppendLog("Checking for existing folder at " + minecraftShaderDirectory);
                 if (Directory.Exists(minecraftShaderDirectory) == false)
@@ -539,13 +567,16 @@ namespace MLCModpackLauncher
 
                 AppendLog("Move Successful!");
 
-                MessageBox.Show("This Modpack Update included a Shader Pack! You can enable it in-game by going to Options > Video Settings > Shaders!");
+                lblStatus.Text = "Shaders Installed";
+                ProgressCompleted += 1;
+                statusMainProgressBar.Value = GetProgressComplete();
+                Thread.Sleep(2000);
             }
             AppendLog("Checking if modpack includes Scripts");
             if (LatestVersion.ToBeUpdated["scripts"] == true)
             {
+                lblStatus.Text = "Installing Scripts";
                 AppendLog("Scripts Included.  Logging new scripts directory as " + LatestVersion.ModpackFolders["scripts"]);
-                MessageBox.Show("Updating Scripts!");
 
                 AppendLog("Checking for existing directory " + minecraftScriptsDirectory);
                 if (Directory.Exists(minecraftScriptsDirectory) == true)
@@ -557,12 +588,17 @@ namespace MLCModpackLauncher
                 AppendLog("Copying " + LatestVersion.ModpackFolders["scripts"] + " to " + minecraftScriptsDirectory);
                 Directory.Move(LatestVersion.ModpackFolders["scripts"], minecraftScriptsDirectory);
                 AppendLog("Move Successful!");
+
+                lblStatus.Text = "Scripts Installed";
+                ProgressCompleted += 1;
+                statusMainProgressBar.Value = GetProgressComplete();
+                Thread.Sleep(2000);
             }
             AppendLog("Checking if modpack includes Forge files");
             if (LatestVersion.ToBeUpdated["forgeFiles"] == true)
             {
+                lblStatus.Text = "Installing Forge Files";
                 AppendLog("Forge Included.  Logging new config directory as " + LatestVersion.ModpackFolders["config"]);
-                MessageBox.Show("Installing Updated Forge Files!");
 
                 AppendLog("Checking for " + minecraftForgeJarDirectory);
                 if(Directory.Exists(minecraftForgeJarDirectory) == false)
@@ -594,12 +630,16 @@ namespace MLCModpackLauncher
 
                 AddNewForgeLauncherProfile(LatestVersion.Forge.ForgeVersionID, LatestVersion.Forge.InstallationName);
 
-                MessageBox.Show("This Modpack release includes a newer version of Forge. A new launcher profile has been created for you. Make sure to select " + LatestVersion.Forge.InstallationName + " next to the Play button, if it is not selected already! This change will not take effect until the next time you open your Minecraft Launcher, so if it open during this update, you'll need to close and re-open the window!");
+                lblStatus.Text = "Forge Files Installed";
+                ProgressCompleted += 1;
+                statusMainProgressBar.Value = GetProgressComplete();
+                Thread.Sleep(2000);
             }
 
             AppendLog("Modpack Update Process Complete. Moving onto Cleanup.");
-            MessageBox.Show("Modpack Updated!");
-            MessageBox.Show("Cleaning Up...Almost Finished!");
+            lblStatus.Text = "Modpack Updated!";
+            Thread.Sleep(2000);
+            lblStatus.Text = "Cleaning Up";
 
             AppendLog("Writing latest version file into " + VersionFilePath);
             string MPVersionJson = JsonConvert.SerializeObject(LatestVersion, Formatting.Indented);
@@ -611,8 +651,18 @@ namespace MLCModpackLauncher
             File.Delete(zipFilePath);
 
             AppendLog("All processes completed. Closing Application.");
-            MessageBox.Show("All Done! Enjoy!");
-            Close();
+
+            lblStatus.Text = "Updated Finished";
+            ProgressCompleted += 1;
+            statusMainProgressBar.Value = GetProgressComplete();
+            Thread.Sleep(2000);
+
+            HideStatus();
+            menuMain.Enabled = true;
+            btnCheckUpdate.Enabled = true;
+            btnUpdateModpack.Enabled = false;
+            btnExit.Enabled = true;
+            lblInstalledVersionText.Text = LatestVersion.Text;
         }
         private void ExitProgram()
         {
@@ -655,6 +705,28 @@ namespace MLCModpackLauncher
 
                 File.AppendAllText(LogFilePath, entry);
             }
+        }
+        private void ShowStatus()
+        {
+            this.Size = new System.Drawing.Size(210, 265);
+            lblStatus.Show();
+            statusMain.Show();
+            btnExit.Enabled = false;
+            btnUpdateModpack.Enabled = false;
+            btnCheckUpdate.Enabled = false;
+        }
+        private void HideStatus()
+        {
+            Size = new System.Drawing.Size(210, 230);
+            lblStatus.Hide();
+            statusMain.Hide();
+            btnExit.Enabled = true;
+            btnUpdateModpack.Enabled = true;
+            btnCheckUpdate.Enabled = true;
+        }
+        private int GetProgressComplete()
+        {
+            return Convert.ToInt32(100 *(ProgressCompleted / ProgressCounter));
         }
     }
 }
