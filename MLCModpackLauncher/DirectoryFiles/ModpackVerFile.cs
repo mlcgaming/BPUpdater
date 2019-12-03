@@ -48,24 +48,8 @@ namespace MLCModpackLauncher
             FileName = fileName;
             URL = url;
             Forge = forge;
-
-            if (ToBeUpdated != null)
-            {
-                // Using newer version of VersionFile
-                ToBeUpdated = new Dictionary<string, bool>(includedFiles);
-                FormatID = 2;
-            }
-            else
-            {
-                FormatID = 1;
-                ToBeUpdated = new Dictionary<string, bool>();
-                ToBeUpdated.Add("mods", true);
-                ToBeUpdated.Add("config", true);
-                ToBeUpdated.Add("resourcePacks", false);
-                ToBeUpdated.Add("shaderPacks", false);
-                ToBeUpdated.Add("scripts", false);
-                ToBeUpdated.Add("forgeFiles", false);
-            }
+            ToBeUpdated = includedFiles;
+            FormatID = 2;
 
             SetModpackFolders();
         }
@@ -79,7 +63,7 @@ namespace MLCModpackLauncher
             includedFiles.Add("scripts", false);
             includedFiles.Add("forgeFiles", obj.IncludesForge);
 
-            return new ModpackVerFile(obj.ID, obj.IsActive, obj.Text, obj.Name, obj.FileName, obj.URL, includedFiles, 2, obj.Forge);
+            return new ModpackVerFile(obj.ID, obj.IsActive, obj.Text, obj.Name, obj.FileName, obj.URL, includedFiles, format:2, obj.Forge);
         }
         public void SetModpackFolders()
         {

@@ -49,13 +49,14 @@
             this.statusMain = new System.Windows.Forms.StatusStrip();
             this.statusMainProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.lblStatus = new System.Windows.Forms.Label();
+            this.cboxLiveOrPTR = new System.Windows.Forms.ComboBox();
             this.menuMain.SuspendLayout();
             this.statusMain.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnUpdateModpack
             // 
-            this.btnUpdateModpack.Location = new System.Drawing.Point(13, 158);
+            this.btnUpdateModpack.Location = new System.Drawing.Point(13, 163);
             this.btnUpdateModpack.Name = "btnUpdateModpack";
             this.btnUpdateModpack.Size = new System.Drawing.Size(80, 23);
             this.btnUpdateModpack.TabIndex = 0;
@@ -78,7 +79,7 @@
             // 
             this.lblCurrentVersion.AutoSize = true;
             this.lblCurrentVersion.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCurrentVersion.Location = new System.Drawing.Point(10, 87);
+            this.lblCurrentVersion.Location = new System.Drawing.Point(10, 70);
             this.lblCurrentVersion.Name = "lblCurrentVersion";
             this.lblCurrentVersion.Size = new System.Drawing.Size(98, 13);
             this.lblCurrentVersion.TabIndex = 4;
@@ -88,7 +89,7 @@
             // 
             this.lblLatestVersion.AutoSize = true;
             this.lblLatestVersion.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLatestVersion.Location = new System.Drawing.Point(16, 110);
+            this.lblLatestVersion.Location = new System.Drawing.Point(16, 93);
             this.lblLatestVersion.Name = "lblLatestVersion";
             this.lblLatestVersion.Size = new System.Drawing.Size(92, 13);
             this.lblLatestVersion.TabIndex = 5;
@@ -97,7 +98,7 @@
             // lblInstalledVersionText
             // 
             this.lblInstalledVersionText.AutoSize = true;
-            this.lblInstalledVersionText.Location = new System.Drawing.Point(106, 88);
+            this.lblInstalledVersionText.Location = new System.Drawing.Point(106, 71);
             this.lblInstalledVersionText.Name = "lblInstalledVersionText";
             this.lblInstalledVersionText.Size = new System.Drawing.Size(0, 13);
             this.lblInstalledVersionText.TabIndex = 6;
@@ -105,14 +106,14 @@
             // lblOnlineVersionText
             // 
             this.lblOnlineVersionText.AutoSize = true;
-            this.lblOnlineVersionText.Location = new System.Drawing.Point(106, 111);
+            this.lblOnlineVersionText.Location = new System.Drawing.Point(106, 94);
             this.lblOnlineVersionText.Name = "lblOnlineVersionText";
             this.lblOnlineVersionText.Size = new System.Drawing.Size(0, 13);
             this.lblOnlineVersionText.TabIndex = 7;
             // 
             // btnCheckUpdate
             // 
-            this.btnCheckUpdate.Location = new System.Drawing.Point(13, 129);
+            this.btnCheckUpdate.Location = new System.Drawing.Point(13, 134);
             this.btnCheckUpdate.Name = "btnCheckUpdate";
             this.btnCheckUpdate.Size = new System.Drawing.Size(168, 23);
             this.btnCheckUpdate.TabIndex = 8;
@@ -189,17 +190,16 @@
             // lblInstructions
             // 
             this.lblInstructions.AutoSize = true;
-            this.lblInstructions.Location = new System.Drawing.Point(10, 38);
+            this.lblInstructions.Location = new System.Drawing.Point(19, 40);
             this.lblInstructions.Name = "lblInstructions";
-            this.lblInstructions.Size = new System.Drawing.Size(175, 39);
+            this.lblInstructions.Size = new System.Drawing.Size(153, 26);
             this.lblInstructions.TabIndex = 3;
-            this.lblInstructions.Text = "Click \"Check for Updates\" below to\r\nsee if updates are available for your\r\nBuddyP" +
-    "als modpack or Forge!";
+            this.lblInstructions.Text = "Use the options below to\r\nUpdate your Modpack or PTR!";
             this.lblInstructions.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // btnExit
             // 
-            this.btnExit.Location = new System.Drawing.Point(101, 158);
+            this.btnExit.Location = new System.Drawing.Point(101, 163);
             this.btnExit.Name = "btnExit";
             this.btnExit.Size = new System.Drawing.Size(80, 23);
             this.btnExit.TabIndex = 11;
@@ -211,7 +211,7 @@
             // 
             this.statusMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.statusMainProgressBar});
-            this.statusMain.Location = new System.Drawing.Point(0, 169);
+            this.statusMain.Location = new System.Drawing.Point(0, 174);
             this.statusMain.Name = "statusMain";
             this.statusMain.Size = new System.Drawing.Size(194, 22);
             this.statusMain.TabIndex = 12;
@@ -225,18 +225,31 @@
             // lblStatus
             // 
             this.lblStatus.AutoSize = true;
-            this.lblStatus.Location = new System.Drawing.Point(2, 187);
+            this.lblStatus.Location = new System.Drawing.Point(2, 192);
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(116, 13);
             this.lblStatus.TabIndex = 13;
             this.lblStatus.Text = "Downloading Update...";
             this.lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // cboxLiveOrPTR
+            // 
+            this.cboxLiveOrPTR.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboxLiveOrPTR.FormattingEnabled = true;
+            this.cboxLiveOrPTR.Items.AddRange(new object[] {
+            "Live",
+            "PTR"});
+            this.cboxLiveOrPTR.Location = new System.Drawing.Point(68, 110);
+            this.cboxLiveOrPTR.Name = "cboxLiveOrPTR";
+            this.cboxLiveOrPTR.Size = new System.Drawing.Size(56, 21);
+            this.cboxLiveOrPTR.TabIndex = 14;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(194, 191);
+            this.ClientSize = new System.Drawing.Size(194, 196);
+            this.Controls.Add(this.cboxLiveOrPTR);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.statusMain);
             this.Controls.Add(this.btnExit);
@@ -286,6 +299,7 @@
         private System.Windows.Forms.StatusStrip statusMain;
         private System.Windows.Forms.ToolStripProgressBar statusMainProgressBar;
         private System.Windows.Forms.Label lblStatus;
+        private System.Windows.Forms.ComboBox cboxLiveOrPTR;
     }
 }
 
