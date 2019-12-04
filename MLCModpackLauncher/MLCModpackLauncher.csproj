@@ -30,8 +30,8 @@
     <PublisherName>MyLanCentral Gaming</PublisherName>
     <MinimumRequiredVersion>1.1.0.13</MinimumRequiredVersion>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>5</ApplicationRevision>
-    <ApplicationVersion>2.0.0.%2a</ApplicationVersion>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>2.1.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -96,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DirectoryFiles\Forge.cs" />
+    <Compile Include="DirectoryFiles\Library.cs" />
     <Compile Include="DirectoryFiles\ModpackVerFile.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

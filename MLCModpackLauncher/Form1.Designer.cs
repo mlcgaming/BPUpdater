@@ -41,7 +41,6 @@
             this.changeDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.minecraftDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pTRDownloadDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.downloadPTRPackageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openAppFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeProgramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lblInstructions = new System.Windows.Forms.Label();
@@ -135,7 +134,6 @@
             // 
             this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.changeDirectoryToolStripMenuItem,
-            this.downloadPTRPackageToolStripMenuItem,
             this.openAppFolderToolStripMenuItem,
             this.closeProgramToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
@@ -148,7 +146,7 @@
             this.minecraftDirectoryToolStripMenuItem,
             this.pTRDownloadDirectoryToolStripMenuItem});
             this.changeDirectoryToolStripMenuItem.Name = "changeDirectoryToolStripMenuItem";
-            this.changeDirectoryToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
+            this.changeDirectoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.changeDirectoryToolStripMenuItem.Text = "Change Directory";
             this.changeDirectoryToolStripMenuItem.Click += new System.EventHandler(this.changeMinecraftDirectoryToolStripMenuItem_Click);
             // 
@@ -166,24 +164,17 @@
             this.pTRDownloadDirectoryToolStripMenuItem.Text = "PTR Download Directory";
             this.pTRDownloadDirectoryToolStripMenuItem.Click += new System.EventHandler(this.pTRDownloadDirectoryToolStripMenuItem_Click);
             // 
-            // downloadPTRPackageToolStripMenuItem
-            // 
-            this.downloadPTRPackageToolStripMenuItem.Name = "downloadPTRPackageToolStripMenuItem";
-            this.downloadPTRPackageToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
-            this.downloadPTRPackageToolStripMenuItem.Text = "Download PTR Package";
-            this.downloadPTRPackageToolStripMenuItem.Click += new System.EventHandler(this.downloadPTRPackageToolStripMenuItem_Click);
-            // 
             // openAppFolderToolStripMenuItem
             // 
             this.openAppFolderToolStripMenuItem.Name = "openAppFolderToolStripMenuItem";
-            this.openAppFolderToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
+            this.openAppFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openAppFolderToolStripMenuItem.Text = "Open App Folder";
             this.openAppFolderToolStripMenuItem.Click += new System.EventHandler(this.openAppFolderToolStripMenuItem_Click);
             // 
             // closeProgramToolStripMenuItem
             // 
             this.closeProgramToolStripMenuItem.Name = "closeProgramToolStripMenuItem";
-            this.closeProgramToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
+            this.closeProgramToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.closeProgramToolStripMenuItem.Text = "Close Program";
             this.closeProgramToolStripMenuItem.Click += new System.EventHandler(this.closeProgramToolStripMenuItem_Click);
             // 
@@ -289,7 +280,6 @@
         private System.Windows.Forms.MenuStrip menuMain;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem changeDirectoryToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem downloadPTRPackageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeProgramToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem minecraftDirectoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pTRDownloadDirectoryToolStripMenuItem;

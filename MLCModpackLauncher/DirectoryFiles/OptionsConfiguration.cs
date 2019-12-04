@@ -18,22 +18,16 @@ namespace MLCModpackLauncher
         /// Download Directory for PTR files. Default is C:\USER\Desktop
         /// </summary>
         public string PTRDirectory { get; private set; }
-        /// <summary>
-        /// AppData Directory for BuddyPal Modpack Updater Config and BPVersion.json files. Always set to C:\USER\AppData\BuddyPals\
-        /// </summary>
-        public string AppDirectory { get; private set; }
 
         public OptionsConfiguration()
         {
             MinecraftDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".minecraft\\");
             PTRDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            AppDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\");
         }
-        public OptionsConfiguration(string mcDirectory, string ptrDirectory, string appDirectory)
+        public OptionsConfiguration(string mcDirectory, string ptrDirectory)
         {
             MinecraftDirectory = mcDirectory;
             PTRDirectory = ptrDirectory;
-            AppDirectory = appDirectory;
         }
 
         public void SetMCDirectory(string directory)

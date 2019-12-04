@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using MLCModpackLauncher.DirectoryFiles;
 using Newtonsoft.Json;
 
 namespace MLCModpackLauncher
@@ -27,19 +28,22 @@ namespace MLCModpackLauncher
             Name = name;
             FileName = "";
             URL = "";
-            ToBeUpdated = new Dictionary<string, bool>();
-            ToBeUpdated.Add("mods", true);
-            ToBeUpdated.Add("config", true);
-            ToBeUpdated.Add("resourcePacks", false);
-            ToBeUpdated.Add("shaderPacks", false);
-            ToBeUpdated.Add("scripts", false);
-            ToBeUpdated.Add("forgeFiles", false);
+
+            ToBeUpdated = new Dictionary<string, bool>
+            {
+                { Library.MOD_ID, true },
+                { Library.CONFIG_ID, true },
+                { Library.RESOURCEPACK_ID, false },
+                { Library.SHADERS_ID, false },
+                { Library.SCRIPTS_ID, false },
+                { Library.FORGEFILES_ID, false }
+            };
 
             SetModpackFolders();
         }
 
         [JsonConstructor]
-        public ModpackVerFile(int id, bool isActive, string text, string name, string fileName, string url, Dictionary<string, bool> includedFiles = null, int format = 1, Forge forge = null)
+        public ModpackVerFile(int id, bool isActive, string text, string name, string fileName, string url, Dictionary<string, bool> toBeUpdated = null, Forge forge = null)
         {
             ID = id;
             IsActive = isActive;
@@ -48,22 +52,24 @@ namespace MLCModpackLauncher
             FileName = fileName;
             URL = url;
             Forge = forge;
-            ToBeUpdated = includedFiles;
+            ToBeUpdated = toBeUpdated;
             FormatID = 2;
 
             SetModpackFolders();
         }
         public static ModpackVerFile ConvertFromVersionFile(VersionFile obj)
         {
-            Dictionary<string, bool> includedFiles = new Dictionary<string, bool>();
-            includedFiles.Add("mods", obj.IncludesMods);
-            includedFiles.Add("config", obj.IncludesConfig);
-            includedFiles.Add("resourcePacks", obj.IncludesResourcePack);
-            includedFiles.Add("shaderPacks", obj.IncludesShaders);
-            includedFiles.Add("scripts", false);
-            includedFiles.Add("forgeFiles", obj.IncludesForge);
+            Dictionary<string, bool> includedFiles = new Dictionary<string, bool>
+            {
+                { Library.MOD_ID, obj.IncludesMods },
+                { Library.CONFIG_ID, obj.IncludesConfig },
+                { Library.RESOURCEPACK_ID, obj.IncludesResourcePack },
+                { Library.SHADERS_ID, obj.IncludesShaders },
+                { Library.SCRIPTS_ID, false },
+                { Library.FORGEFILES_ID, obj.IncludesForge }
+            };
 
-            return new ModpackVerFile(obj.ID, obj.IsActive, obj.Text, obj.Name, obj.FileName, obj.URL, includedFiles, format:2, obj.Forge);
+            return new ModpackVerFile(obj.ID, obj.IsActive, obj.Text, obj.Name, obj.FileName, obj.URL, includedFiles, obj.Forge);
         }
         public void SetModpackFolders()
         {
@@ -71,59 +77,59 @@ namespace MLCModpackLauncher
             {
                 ModpackFolders = new Dictionary<string, string>();
 
-                if (ToBeUpdated["mods"] == true)
+                if (ToBeUpdated[Library.MOD_ID] == true)
                 {
-                    ModpackFolders.Add("mods", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\mods\\"));
+                    ModpackFolders.Add(Library.MOD_ID, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Library.MOD_BIN_PATH));
                 }
-                if (ToBeUpdated["config"] == true)
+                if (ToBeUpdated[Library.CONFIG_ID] == true)
                 {
-                    ModpackFolders.Add("config", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\config\\"));
+                    ModpackFolders.Add(Library.CONFIG_ID, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Library.CONFIG_BIN_PATH));
                 }
-                if (ToBeUpdated["resourcePacks"] == true)
+                if (ToBeUpdated[Library.RESOURCEPACK_ID] == true)
                 {
-                    ModpackFolders.Add("resourcePacks", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\resourcepacks\\"));
+                    ModpackFolders.Add(Library.RESOURCEPACK_ID, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Library.RESOURCEPACK_BIN_PATH));
                 }
-                if (ToBeUpdated["shaderPacks"] == true)
+                if (ToBeUpdated[Library.SHADERS_ID] == true)
                 {
-                    ModpackFolders.Add("shaderPacks", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\shaderpacks\\"));
+                    ModpackFolders.Add(Library.SHADERS_ID, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Library.SHADERS_BIN_PATH));
                 }
-                if (ToBeUpdated["scripts"] == true)
+                if (ToBeUpdated[Library.SCRIPTS_ID] == true)
                 {
-                    ModpackFolders.Add("scripts", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\scripts"));
+                    ModpackFolders.Add(Library.SCRIPTS_ID, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Library.SCRIPTS_BIN_PATH));
                 }
-                if (ToBeUpdated["forgeFiles"] == true)
+                if (ToBeUpdated[Library.FORGEFILES_ID] == true)
                 {
-                    ModpackFolders.Add("forgeJarRoot", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\forge\\libraries"));
-                    ModpackFolders.Add("forgeJsonRoot", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\forge\\versions"));
+                    ModpackFolders.Add(Library.JAR_ROOT_ID, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Library.JAR_BIN_PATH));
+                    ModpackFolders.Add(Library.JSON_ROOT_ID, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Library.JSON_BIN_PATH));
                 }
             }
             else
             {
                 // Update Existing ModpackFolders with unique entries.
-                if (ToBeUpdated["mods"] == true)
+                if (ToBeUpdated[Library.MOD_ID] == true)
                 {
-                    ModpackFolders["mods"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\mods\\");
+                    ModpackFolders[Library.MOD_ID] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Library.MOD_BIN_PATH);
                 }
-                if (ToBeUpdated["config"] == true)
+                if (ToBeUpdated[Library.CONFIG_ID] == true)
                 {
-                    ModpackFolders["config"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\config\\");
+                    ModpackFolders[Library.CONFIG_ID] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Library.CONFIG_BIN_PATH);
                 }
-                if (ToBeUpdated["resourcePacks"] == true)
+                if (ToBeUpdated[Library.RESOURCEPACK_ID] == true)
                 {
-                    ModpackFolders["resourcePacks"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\resourcepacks\\");
+                    ModpackFolders[Library.RESOURCEPACK_ID] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Library.RESOURCEPACK_BIN_PATH);
                 }
-                if (ToBeUpdated["shaderPacks"] == true)
+                if (ToBeUpdated[Library.SHADERS_ID] == true)
                 {
-                    ModpackFolders["shaderPacks"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\shaderpacks\\");
+                    ModpackFolders[Library.SHADERS_ID] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Library.SHADERS_BIN_PATH);
                 }
-                if (ToBeUpdated["scripts"] == true)
+                if (ToBeUpdated[Library.SCRIPTS_ID] == true)
                 {
-                    ModpackFolders["scripts"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\scripts");
+                    ModpackFolders[Library.SCRIPTS_ID] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Library.SCRIPTS_BIN_PATH);
                 }
-                if (ToBeUpdated["forgeFiles"] == true)
+                if (ToBeUpdated[Library.FORGEFILES_ID] == true)
                 {
-                    ModpackFolders["forgeJarRoot"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\forge\\libraries");
-                    ModpackFolders["forgeJsonRoot"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\bin\\forge\\versions");
+                    ModpackFolders[Library.JAR_ROOT_ID] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Library.JAR_BIN_PATH);
+                    ModpackFolders[Library.JSON_ROOT_ID] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Library.JSON_BIN_PATH);
                 }
             }
         }
