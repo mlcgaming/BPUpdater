@@ -43,5 +43,11 @@ namespace MLCModpackLauncher.MojangLauncherProfile
             Name = name;
             Type = type;
         }
+
+        public void UpdateForge(string forgeVersion, string installationName)
+        {
+            LastVersionID = forgeVersion;
+            Name = installationName;
+        }
     }
 }

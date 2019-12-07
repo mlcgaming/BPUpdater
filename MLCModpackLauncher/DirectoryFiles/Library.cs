@@ -30,8 +30,8 @@ namespace MLCModpackLauncher.DirectoryFiles
         public static string RESOURCEPACK_DST_FOLDER = "resourcepacks";
         public static string SHADERS_DST_FOLDER = "shaderpacks";
         public static string SCRIPTS_DST_FOLDER = "scripts";
-        public static string JAR_DST_FOLDER = "versions";
-        public static string JSON_DST_FOLDER = "libraries\\net\\minecraftforge\\forge";
+        public static string JAR_DST_FOLDER = "libraries";
+        public static string JSON_DST_FOLDER = "versions";
 
         public static string BuddyPalsAppDataDirectory { get; private set; }
         public static string UpdaterConfigFilePath { get; private set; }
@@ -70,7 +70,7 @@ namespace MLCModpackLauncher.DirectoryFiles
             SHADERS_DST_FOLDER = Path.Combine(workingDirectoryRoot, "shaderpacks");
             SCRIPTS_DST_FOLDER = Path.Combine(workingDirectoryRoot, "scripts");
 
-            JAR_DST_FOLDER = Path.Combine(forgeDirectoryRoot, "libraries\\net\\minecraftforge\\forge");
+            JAR_DST_FOLDER = Path.Combine(forgeDirectoryRoot, "libraries");
             JSON_DST_FOLDER = Path.Combine(forgeDirectoryRoot, "versions");
         }
     }
