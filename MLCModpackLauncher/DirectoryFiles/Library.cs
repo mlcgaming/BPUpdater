@@ -37,6 +37,9 @@ namespace MLCModpackLauncher.DirectoryFiles
         public static string UpdaterConfigFilePath { get; private set; }
         public static string ModpackVersionFilePath { get; private set; }
         public static string LogFilePath { get; private set; }
+        public static string ClientAgentFile { get; private set; }
+
+        public const string CLIENTCODEXURL = "ftp://mc.mlcgaming.com/ADMIN/clientcodex.aes";
 
         public static void Initialize()
         {
@@ -46,9 +49,10 @@ namespace MLCModpackLauncher.DirectoryFiles
         private static void InitializePaths()
         {
             BuddyPalsAppDataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\");
-            UpdaterConfigFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\updater.conf");
-            ModpackVersionFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\modpack.ver");
-            LogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BuddyPals\\updater.log");
+            UpdaterConfigFilePath = Path.Combine(BuddyPalsAppDataDirectory, "updater.conf");
+            ModpackVersionFilePath = Path.Combine(BuddyPalsAppDataDirectory, "modpack.ver");
+            LogFilePath = Path.Combine(BuddyPalsAppDataDirectory, "updater.log");
+            ClientAgentFile = Path.Combine(BuddyPalsAppDataDirectory, "client.aes");
 
             MOD_SRC_FOLDER = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), MOD_BIN_PATH);
             CONFIG_SRC_FOLDER = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), CONFIG_BIN_PATH);

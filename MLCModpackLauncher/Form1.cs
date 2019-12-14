@@ -16,7 +16,6 @@ namespace MLCModpackLauncher
     {
         OptionsConfiguration Options;
         ModpackVerFile CurrentVersion, LatestVersion;
-        ToolTip CurrentVersionTooltip, LatestVersionTooltip, CheckForUpdateButtonTooltip, UpdateModpackTooltip;
 
         public MainForm()
         {
@@ -24,22 +23,6 @@ namespace MLCModpackLauncher
             InitializeMainForm();
         }
 
-        private void BtnCheckUpdate_Click(object sender, EventArgs e)
-        {
-            CheckForUpdate();
-        }
-        private void BtnApplyUpdate_Click(object sender, EventArgs e)
-        {
-            lblStatus.Text = "Downloading Update...";
-            ShowStatus();
-            LatestVersion.SetModpackFolders();
-            menuMain.Enabled = false;
-            DownloadFileFTP(Library.BuddyPalsAppDataDirectory);
-        }
-        private void BtnExit_Click(object sender, EventArgs e)
-        {
-            ExitProgram();
-        }
         private void closeProgramToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ExitProgram();
@@ -83,9 +66,12 @@ namespace MLCModpackLauncher
 
         private void InitializeMainForm()
         {
+            btnPlay.Enabled = false;
+            lblUsername.Refresh();
+            lblPassword.Refresh();
+
             Library.Initialize();
             HideStatus();
-            cboxLiveOrPTR.SelectedIndex = 0;
 
             if (File.Exists(Library.LogFilePath) == false)
             {
@@ -96,7 +82,6 @@ namespace MLCModpackLauncher
 
             AppendLog("\nInitializing MainForm");
 
-            btnUpdateModpack.Enabled = false;
             CurrentVersion = null;
             LatestVersion = null;
 
@@ -132,9 +117,29 @@ namespace MLCModpackLauncher
             }
             finally
             {
+                CurrentVersion = JsonConvert.DeserializeObject<ModpackVerFile>(File.ReadAllText(Library.ModpackVersionFilePath));
+
+                lblModpackVersion.Text = "BuddyPals Modpack v." + CurrentVersion.Text;
+                //lblVersionName.Text = CurrentVersion.Name;
+
                 InitializeOptions();
                 CleanupAppDataDirectory();
                 InitializeTooltips();
+                Library.UpdateDestinationFolderPaths(Options.MinecraftDirectory, Options.MinecraftDirectory);
+
+                if (CheckForUpdate() == true)
+                {
+                    // Update
+                    ShowStatus();
+                    LatestVersion.SetModpackFolders();
+                    DownloadFileFTP(Library.BuddyPalsAppDataDirectory);
+                    lblModpackStatusText.Text = "Updating to New Version..";
+                }
+                else
+                {
+                    lblModpackStatusText.Text = "Up to Date!";
+                    btnPlay.Enabled = true;
+                }
             }
         }
         private void InitializeOptions()
@@ -229,26 +234,7 @@ namespace MLCModpackLauncher
         }
         private void InitializeTooltips()
         {
-            CurrentVersionTooltip = new ToolTip();
-            LatestVersionTooltip = new ToolTip();
-            CheckForUpdateButtonTooltip = new ToolTip();
-            UpdateModpackTooltip = new ToolTip();
-
-            CurrentVersionTooltip.IsBalloon = true;
-            CurrentVersionTooltip.ShowAlways = true;
-            CurrentVersionTooltip.SetToolTip(lblCurrentVersion, "This is the version of the BuddyPals Modpack detected on your machine, using the Minecraft Directory defined in the Options above.");
-
-            LatestVersionTooltip.IsBalloon = true;
-            LatestVersionTooltip.ShowAlways = true;
-            LatestVersionTooltip.SetToolTip(lblLatestVersion, "This is the version of the BuddyPals Modpack currently being deployed by the master server. If it does not match your installed version, you'll have the option to update below.");
-
-            CheckForUpdateButtonTooltip.IsBalloon = true;
-            CheckForUpdateButtonTooltip.ShowAlways = true;
-            CheckForUpdateButtonTooltip.SetToolTip(btnCheckUpdate, "Check the master server for the latest updates to the BuddyPals Community Modpack");
-
-            UpdateModpackTooltip.IsBalloon = true;
-            UpdateModpackTooltip.ShowAlways = true;
-            UpdateModpackTooltip.SetToolTip(btnUpdateModpack, "Install the most recent modpack files!");
+            
         }
         private void AddNewForgeLauncherProfile(string forgeVersion, string installationName)
         {
@@ -360,87 +346,40 @@ namespace MLCModpackLauncher
             File.WriteAllText(Library.UpdaterConfigFilePath, optionsFile);
             AppendLog(Library.UpdaterConfigFilePath + " updated.");
         }
-        private void CheckForUpdate()
+        private bool CheckForUpdate()
         {
-            switch (cboxLiveOrPTR.SelectedIndex)
+            // Check for Regular Modpack Update
+            AppendLog("Downloading modpack.ver from Master Server to check for update.");
+            // DOWNLOAD MC.MLCGAMING.COM/DOWNLOADS/MPVERSION.JSON
+            // PARSE FILE INTO VERSIONINFO OBJECT (LATESTVERSION)
+            LatestVersion = DownloadMPVersionJson("ftp://mc.mlcgaming.com/modpack/modpack.ver");
+            AppendLog("Success!");
+            // LOOK FOR MPVERSION.JSON IN APPDATA\BUDDYPALS\ FOLDER
+            AppendLog("Checking for current modpack.ver file at " + Library.ModpackVersionFilePath);
+            if (File.Exists(Library.ModpackVersionFilePath) == true)
             {
-                case 1:
-                    {
-                        // Check for PTR
-                        AppendLog("Downloading modpack.ver from Master Server to check for update.");
-                        // DOWNLOAD MC.MLCGAMING.COM/DOWNLOADS/MPVERSION.JSON
-                        // PARSE FILE INTO VERSIONINFO OBJECT (LATESTVERSION)
-                        LatestVersion = DownloadMPVersionJson("ftp://mc.mlcgaming.com/modpack/PTR/modpack.ver");
-                        AppendLog("Success!");
-                        // PTR Always uses a Dummy File
-                        AppendLog("No current modpack.ver found. Creating a dummy file.");
-                        CurrentVersion = new ModpackVerFile(0, "N/A", "NULL");
-                        break;
-                    }
-                default:
-                    {
-                        // Check for Regular Modpack Update
-                        AppendLog("Downloading modpack.ver from Master Server to check for update.");
-                        // DOWNLOAD MC.MLCGAMING.COM/DOWNLOADS/MPVERSION.JSON
-                        // PARSE FILE INTO VERSIONINFO OBJECT (LATESTVERSION)
-                        LatestVersion = DownloadMPVersionJson("ftp://mc.mlcgaming.com/modpack/modpack.ver");
-                        AppendLog("Success!");
-                        // LOOK FOR MPVERSION.JSON IN APPDATA\BUDDYPALS\ FOLDER
-                        AppendLog("Checking for current modpack.ver file at " + Library.ModpackVersionFilePath);
-                        if (File.Exists(Library.ModpackVersionFilePath) == true)
-                        {
-                            AppendLog(Library.ModpackVersionFilePath + " found! Loading current version file.");
-                            CurrentVersion = JsonConvert.DeserializeObject<ModpackVerFile>(File.ReadAllText(Library.ModpackVersionFilePath));
-                        }
-                        else
-                        {
-                            AppendLog("No current modpack.ver found. Creating a dummy file.");
-                            CurrentVersion = new ModpackVerFile(0, "N/A", "NULL");
-                        }
-                        break;
-                    }
-            }
-
-            // IF NONE, ASSUME NO MODPACK 
-            // IF EXISTS, PARSE IT INTO VERSIONINFO OBJECT (CURRENTVERSION)
-            // IF CURRENTVERSION IS NULL OR DIFFERS FROM LATESTVERSION,
-            //  ENABLE APPLYUPDATE BUTTON AND DISPLAY VERSIONS
-
-            if (CurrentVersion.ID != LatestVersion.ID)
-            {
-                btnUpdateModpack.Enabled = true;
+                AppendLog(Library.ModpackVersionFilePath + " found! Loading current version file.");
+                CurrentVersion = JsonConvert.DeserializeObject<ModpackVerFile>(File.ReadAllText(Library.ModpackVersionFilePath));
             }
             else
             {
-                btnUpdateModpack.Enabled = false;
+                AppendLog("No current modpack.ver found. Creating a dummy file.");
+                CurrentVersion = new ModpackVerFile(0, "N/A", "NULL");
             }
 
-            if (CurrentVersion == null)
+            if (LatestVersion.ID != CurrentVersion.ID)
             {
-                lblInstalledVersionText.Text = "N/A";
+                return true;
             }
-            else
-            {
-                lblInstalledVersionText.Text = CurrentVersion.Text;
+            else 
+            { 
+                return false;
             }
-
-            lblOnlineVersionText.Text = LatestVersion.Text;
         }
         private void UpdateModpack()
         {
             // Set Root Directory Based On Live vs PTR choice
-            string rootDestinationDirectory;
-
-            if (cboxLiveOrPTR.SelectedIndex == 0)
-            {
-                // LIVE
-                rootDestinationDirectory = Options.MinecraftDirectory;
-            }
-            else
-            {
-                // PTR
-                rootDestinationDirectory = Options.PTRDirectory;
-            }
+            string rootDestinationDirectory = Options.MinecraftDirectory;
 
             Library.UpdateDestinationFolderPaths(rootDestinationDirectory, Options.MinecraftDirectory);
 
@@ -617,13 +556,10 @@ namespace MLCModpackLauncher
             ChangeStatus("Modpack Updated!");
             ChangeStatus("Cleaning Up...");
 
-            if(cboxLiveOrPTR.SelectedIndex == 0)
-            {
-                AppendLog("Writing latest version file into " + Library.ModpackVersionFilePath);
-                string MPVersionJson = JsonConvert.SerializeObject(LatestVersion, Formatting.Indented);
-                File.WriteAllText(Library.ModpackVersionFilePath, MPVersionJson);
-            }
-            
+            AppendLog("Writing latest version file into " + Library.ModpackVersionFilePath);
+            string MPVersionJson = JsonConvert.SerializeObject(LatestVersion, Formatting.Indented);
+            File.WriteAllText(Library.ModpackVersionFilePath, MPVersionJson);
+
             AppendLog("Deleting Extraction Path.");
             Directory.Delete(extractionPath, true);
             AppendLog("Deleting Modpack Zip File.");
@@ -632,13 +568,14 @@ namespace MLCModpackLauncher
             AppendLog("All processes completed. Closing Application.");
 
             ChangeStatus("Update Complete!");
-            
+
+            CurrentVersion = JsonConvert.DeserializeObject<ModpackVerFile>(File.ReadAllText(Library.ModpackVersionFilePath));
+
+            lblModpackVersion.Text = "BuddyPals Modpack v." + CurrentVersion.Text;
+
             HideStatus();
             menuMain.Enabled = true;
-            btnCheckUpdate.Enabled = true;
-            btnUpdateModpack.Enabled = false;
-            btnExit.Enabled = true;
-            lblInstalledVersionText.Text = LatestVersion.Text;
+            btnPlay.Enabled = true;
         }
 
         private void ExitProgram()
@@ -685,22 +622,39 @@ namespace MLCModpackLauncher
         }
         private void ShowStatus()
         {
-            this.Size = new System.Drawing.Size(210, 270);
+            this.Size = new System.Drawing.Size(254, 266);
             lblStatus.Show();
             statusMain.Show();
-            btnExit.Enabled = false;
-            btnUpdateModpack.Enabled = false;
-            btnCheckUpdate.Enabled = false;
         }
         private void HideStatus()
         {
-            Size = new System.Drawing.Size(210, 235);
+            Size = new System.Drawing.Size(254, 230);
             lblStatus.Hide();
             statusMain.Hide();
-            btnExit.Enabled = true;
-            btnUpdateModpack.Enabled = true;
-            btnCheckUpdate.Enabled = true;
         }
+
+        private void btnPlay_Click(object sender, EventArgs e)
+        {
+            // Check if client.aes exists
+            if(File.Exists(Library.ClientAgentFile) == true)
+            {
+                // If it exists, download the 'clientcodex.aes' from mc.mlcgaming.com/ADMIN/clientcodex.aes to get the password
+                string fileName = LatestVersion.FileName;
+                AppendLog("Downloading clientcodex.aes from " + Library.CLIENTCODEXURL);
+                using (WebClient request = new WebClient())
+                {
+                    request.Credentials = new NetworkCredential("ftpuser", "mlcTech19!");
+                    request.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCompleted);
+                    request.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                    request.DownloadFileAsync(new Uri(Library.CLIENTCODEXURL), Path.Combine(Library.BuddyPalsAppDataDirectory, "clientcodex.aes"));
+                }
+
+                ClientCodex codex = JsonConvert.DeserializeObject<ClientCodex>(Path.Combine(Library.BuddyPalsAppDataDirectory, "clientcodex.aes"));
+                
+
+            }
+        }
+
         private void ChangeStatus(string message)
         {
             lblStatus.Text = message;

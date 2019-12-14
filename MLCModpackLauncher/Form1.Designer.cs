@@ -29,13 +29,6 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.btnUpdateModpack = new System.Windows.Forms.Button();
-            this.lblTitle = new System.Windows.Forms.Label();
-            this.lblCurrentVersion = new System.Windows.Forms.Label();
-            this.lblLatestVersion = new System.Windows.Forms.Label();
-            this.lblInstalledVersionText = new System.Windows.Forms.Label();
-            this.lblOnlineVersionText = new System.Windows.Forms.Label();
-            this.btnCheckUpdate = new System.Windows.Forms.Button();
             this.menuMain = new System.Windows.Forms.MenuStrip();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.changeDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -43,82 +36,24 @@
             this.pTRDownloadDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openAppFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeProgramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.lblInstructions = new System.Windows.Forms.Label();
-            this.btnExit = new System.Windows.Forms.Button();
             this.statusMain = new System.Windows.Forms.StatusStrip();
             this.statusMainProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.lblStatus = new System.Windows.Forms.Label();
-            this.cboxLiveOrPTR = new System.Windows.Forms.ComboBox();
+            this.lblUsername = new System.Windows.Forms.Label();
+            this.grpLoginInfo = new System.Windows.Forms.GroupBox();
+            this.lblLoginStatus = new System.Windows.Forms.Label();
+            this.btnPlay = new System.Windows.Forms.Button();
+            this.tboxPassword = new System.Windows.Forms.TextBox();
+            this.tboxUsername = new System.Windows.Forms.TextBox();
+            this.lblPassword = new System.Windows.Forms.Label();
+            this.lblVersionName = new System.Windows.Forms.Label();
+            this.lblModpackVersion = new System.Windows.Forms.Label();
+            this.lblModpackStatus = new System.Windows.Forms.Label();
+            this.lblModpackStatusText = new System.Windows.Forms.Label();
             this.menuMain.SuspendLayout();
             this.statusMain.SuspendLayout();
+            this.grpLoginInfo.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // btnUpdateModpack
-            // 
-            this.btnUpdateModpack.Location = new System.Drawing.Point(13, 163);
-            this.btnUpdateModpack.Name = "btnUpdateModpack";
-            this.btnUpdateModpack.Size = new System.Drawing.Size(80, 23);
-            this.btnUpdateModpack.TabIndex = 0;
-            this.btnUpdateModpack.Text = "Apply Update";
-            this.btnUpdateModpack.UseVisualStyleBackColor = true;
-            this.btnUpdateModpack.Click += new System.EventHandler(this.BtnApplyUpdate_Click);
-            // 
-            // lblTitle
-            // 
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTitle.Location = new System.Drawing.Point(10, 25);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(171, 13);
-            this.lblTitle.TabIndex = 2;
-            this.lblTitle.Text = "BuddyPals Modpack Updater";
-            this.lblTitle.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
-            // lblCurrentVersion
-            // 
-            this.lblCurrentVersion.AutoSize = true;
-            this.lblCurrentVersion.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCurrentVersion.Location = new System.Drawing.Point(10, 70);
-            this.lblCurrentVersion.Name = "lblCurrentVersion";
-            this.lblCurrentVersion.Size = new System.Drawing.Size(98, 13);
-            this.lblCurrentVersion.TabIndex = 4;
-            this.lblCurrentVersion.Text = "Current Version:";
-            // 
-            // lblLatestVersion
-            // 
-            this.lblLatestVersion.AutoSize = true;
-            this.lblLatestVersion.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLatestVersion.Location = new System.Drawing.Point(16, 93);
-            this.lblLatestVersion.Name = "lblLatestVersion";
-            this.lblLatestVersion.Size = new System.Drawing.Size(92, 13);
-            this.lblLatestVersion.TabIndex = 5;
-            this.lblLatestVersion.Text = "Latest Version:";
-            // 
-            // lblInstalledVersionText
-            // 
-            this.lblInstalledVersionText.AutoSize = true;
-            this.lblInstalledVersionText.Location = new System.Drawing.Point(106, 71);
-            this.lblInstalledVersionText.Name = "lblInstalledVersionText";
-            this.lblInstalledVersionText.Size = new System.Drawing.Size(0, 13);
-            this.lblInstalledVersionText.TabIndex = 6;
-            // 
-            // lblOnlineVersionText
-            // 
-            this.lblOnlineVersionText.AutoSize = true;
-            this.lblOnlineVersionText.Location = new System.Drawing.Point(106, 94);
-            this.lblOnlineVersionText.Name = "lblOnlineVersionText";
-            this.lblOnlineVersionText.Size = new System.Drawing.Size(0, 13);
-            this.lblOnlineVersionText.TabIndex = 7;
-            // 
-            // btnCheckUpdate
-            // 
-            this.btnCheckUpdate.Location = new System.Drawing.Point(13, 134);
-            this.btnCheckUpdate.Name = "btnCheckUpdate";
-            this.btnCheckUpdate.Size = new System.Drawing.Size(168, 23);
-            this.btnCheckUpdate.TabIndex = 8;
-            this.btnCheckUpdate.Text = "Check for Updates";
-            this.btnCheckUpdate.UseVisualStyleBackColor = true;
-            this.btnCheckUpdate.Click += new System.EventHandler(this.BtnCheckUpdate_Click);
             // 
             // menuMain
             // 
@@ -126,7 +61,7 @@
             this.optionsToolStripMenuItem});
             this.menuMain.Location = new System.Drawing.Point(0, 0);
             this.menuMain.Name = "menuMain";
-            this.menuMain.Size = new System.Drawing.Size(194, 24);
+            this.menuMain.Size = new System.Drawing.Size(238, 24);
             this.menuMain.TabIndex = 10;
             this.menuMain.Text = "menuMain";
             // 
@@ -146,7 +81,7 @@
             this.minecraftDirectoryToolStripMenuItem,
             this.pTRDownloadDirectoryToolStripMenuItem});
             this.changeDirectoryToolStripMenuItem.Name = "changeDirectoryToolStripMenuItem";
-            this.changeDirectoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.changeDirectoryToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.changeDirectoryToolStripMenuItem.Text = "Change Directory";
             this.changeDirectoryToolStripMenuItem.Click += new System.EventHandler(this.changeMinecraftDirectoryToolStripMenuItem_Click);
             // 
@@ -167,44 +102,24 @@
             // openAppFolderToolStripMenuItem
             // 
             this.openAppFolderToolStripMenuItem.Name = "openAppFolderToolStripMenuItem";
-            this.openAppFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openAppFolderToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.openAppFolderToolStripMenuItem.Text = "Open App Folder";
             this.openAppFolderToolStripMenuItem.Click += new System.EventHandler(this.openAppFolderToolStripMenuItem_Click);
             // 
             // closeProgramToolStripMenuItem
             // 
             this.closeProgramToolStripMenuItem.Name = "closeProgramToolStripMenuItem";
-            this.closeProgramToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.closeProgramToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.closeProgramToolStripMenuItem.Text = "Close Program";
             this.closeProgramToolStripMenuItem.Click += new System.EventHandler(this.closeProgramToolStripMenuItem_Click);
-            // 
-            // lblInstructions
-            // 
-            this.lblInstructions.AutoSize = true;
-            this.lblInstructions.Location = new System.Drawing.Point(19, 40);
-            this.lblInstructions.Name = "lblInstructions";
-            this.lblInstructions.Size = new System.Drawing.Size(153, 26);
-            this.lblInstructions.TabIndex = 3;
-            this.lblInstructions.Text = "Use the options below to\r\nUpdate your Modpack or PTR!";
-            this.lblInstructions.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
-            // btnExit
-            // 
-            this.btnExit.Location = new System.Drawing.Point(101, 163);
-            this.btnExit.Name = "btnExit";
-            this.btnExit.Size = new System.Drawing.Size(80, 23);
-            this.btnExit.TabIndex = 11;
-            this.btnExit.Text = "Exit";
-            this.btnExit.UseVisualStyleBackColor = true;
-            this.btnExit.Click += new System.EventHandler(this.btnExit_Click_1);
             // 
             // statusMain
             // 
             this.statusMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.statusMainProgressBar});
-            this.statusMain.Location = new System.Drawing.Point(0, 174);
+            this.statusMain.Location = new System.Drawing.Point(0, 169);
             this.statusMain.Name = "statusMain";
-            this.statusMain.Size = new System.Drawing.Size(194, 22);
+            this.statusMain.Size = new System.Drawing.Size(238, 22);
             this.statusMain.TabIndex = 12;
             this.statusMain.Text = "TEST";
             // 
@@ -216,42 +131,133 @@
             // lblStatus
             // 
             this.lblStatus.AutoSize = true;
-            this.lblStatus.Location = new System.Drawing.Point(2, 192);
+            this.lblStatus.Location = new System.Drawing.Point(8, 192);
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(116, 13);
             this.lblStatus.TabIndex = 13;
             this.lblStatus.Text = "Downloading Update...";
             this.lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // cboxLiveOrPTR
+            // lblUsername
             // 
-            this.cboxLiveOrPTR.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboxLiveOrPTR.FormattingEnabled = true;
-            this.cboxLiveOrPTR.Items.AddRange(new object[] {
-            "Live",
-            "PTR"});
-            this.cboxLiveOrPTR.Location = new System.Drawing.Point(68, 110);
-            this.cboxLiveOrPTR.Name = "cboxLiveOrPTR";
-            this.cboxLiveOrPTR.Size = new System.Drawing.Size(56, 21);
-            this.cboxLiveOrPTR.TabIndex = 14;
+            this.lblUsername.AutoSize = true;
+            this.lblUsername.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUsername.Location = new System.Drawing.Point(6, 25);
+            this.lblUsername.Name = "lblUsername";
+            this.lblUsername.Size = new System.Drawing.Size(67, 13);
+            this.lblUsername.TabIndex = 15;
+            this.lblUsername.Text = "Username:";
+            // 
+            // grpLoginInfo
+            // 
+            this.grpLoginInfo.Controls.Add(this.lblLoginStatus);
+            this.grpLoginInfo.Controls.Add(this.btnPlay);
+            this.grpLoginInfo.Controls.Add(this.tboxPassword);
+            this.grpLoginInfo.Controls.Add(this.tboxUsername);
+            this.grpLoginInfo.Controls.Add(this.lblPassword);
+            this.grpLoginInfo.Controls.Add(this.lblUsername);
+            this.grpLoginInfo.Location = new System.Drawing.Point(11, 63);
+            this.grpLoginInfo.Name = "grpLoginInfo";
+            this.grpLoginInfo.Size = new System.Drawing.Size(214, 98);
+            this.grpLoginInfo.TabIndex = 16;
+            this.grpLoginInfo.TabStop = false;
+            this.grpLoginInfo.Text = "Login Info";
+            // 
+            // lblLoginStatus
+            // 
+            this.lblLoginStatus.AutoSize = true;
+            this.lblLoginStatus.Location = new System.Drawing.Point(7, 74);
+            this.lblLoginStatus.Name = "lblLoginStatus";
+            this.lblLoginStatus.Size = new System.Drawing.Size(63, 13);
+            this.lblLoginStatus.TabIndex = 20;
+            this.lblLoginStatus.Text = "LoginStatus";
+            // 
+            // btnPlay
+            // 
+            this.btnPlay.Enabled = false;
+            this.btnPlay.Location = new System.Drawing.Point(133, 69);
+            this.btnPlay.Name = "btnPlay";
+            this.btnPlay.Size = new System.Drawing.Size(75, 23);
+            this.btnPlay.TabIndex = 19;
+            this.btnPlay.Text = "Play";
+            this.btnPlay.UseVisualStyleBackColor = true;
+            this.btnPlay.Click += new System.EventHandler(this.btnPlay_Click);
+            // 
+            // tboxPassword
+            // 
+            this.tboxPassword.Location = new System.Drawing.Point(79, 43);
+            this.tboxPassword.Name = "tboxPassword";
+            this.tboxPassword.Size = new System.Drawing.Size(129, 20);
+            this.tboxPassword.TabIndex = 18;
+            // 
+            // tboxUsername
+            // 
+            this.tboxUsername.Location = new System.Drawing.Point(79, 22);
+            this.tboxUsername.Name = "tboxUsername";
+            this.tboxUsername.Size = new System.Drawing.Size(129, 20);
+            this.tboxUsername.TabIndex = 17;
+            // 
+            // lblPassword
+            // 
+            this.lblPassword.AutoSize = true;
+            this.lblPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblPassword.Location = new System.Drawing.Point(6, 46);
+            this.lblPassword.Name = "lblPassword";
+            this.lblPassword.Size = new System.Drawing.Size(65, 13);
+            this.lblPassword.TabIndex = 16;
+            this.lblPassword.Text = "Password:";
+            // 
+            // lblVersionName
+            // 
+            this.lblVersionName.AutoSize = true;
+            this.lblVersionName.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblVersionName.Location = new System.Drawing.Point(6, 31);
+            this.lblVersionName.Name = "lblVersionName";
+            this.lblVersionName.Size = new System.Drawing.Size(229, 16);
+            this.lblVersionName.TabIndex = 0;
+            this.lblVersionName.Text = "BuddyPals Community Launcher";
+            this.lblVersionName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblModpackVersion
+            // 
+            this.lblModpackVersion.AutoSize = true;
+            this.lblModpackVersion.Location = new System.Drawing.Point(53, 47);
+            this.lblModpackVersion.Name = "lblModpackVersion";
+            this.lblModpackVersion.Size = new System.Drawing.Size(144, 13);
+            this.lblModpackVersion.TabIndex = 1;
+            this.lblModpackVersion.Text = "BuddyPals Modpack v.X.X.X";
+            this.lblModpackVersion.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // lblModpackStatus
+            // 
+            this.lblModpackStatus.AutoSize = true;
+            this.lblModpackStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblModpackStatus.Location = new System.Drawing.Point(8, 169);
+            this.lblModpackStatus.Name = "lblModpackStatus";
+            this.lblModpackStatus.Size = new System.Drawing.Size(103, 13);
+            this.lblModpackStatus.TabIndex = 17;
+            this.lblModpackStatus.Text = "Modpack Status:";
+            // 
+            // lblModpackStatusText
+            // 
+            this.lblModpackStatusText.AutoSize = true;
+            this.lblModpackStatusText.Location = new System.Drawing.Point(117, 169);
+            this.lblModpackStatusText.Name = "lblModpackStatusText";
+            this.lblModpackStatusText.Size = new System.Drawing.Size(0, 13);
+            this.lblModpackStatusText.TabIndex = 18;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(194, 196);
-            this.Controls.Add(this.cboxLiveOrPTR);
+            this.ClientSize = new System.Drawing.Size(238, 191);
+            this.Controls.Add(this.lblModpackStatusText);
+            this.Controls.Add(this.lblModpackStatus);
+            this.Controls.Add(this.lblModpackVersion);
+            this.Controls.Add(this.grpLoginInfo);
+            this.Controls.Add(this.lblVersionName);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.statusMain);
-            this.Controls.Add(this.btnExit);
-            this.Controls.Add(this.btnUpdateModpack);
-            this.Controls.Add(this.btnCheckUpdate);
-            this.Controls.Add(this.lblOnlineVersionText);
-            this.Controls.Add(this.lblInstalledVersionText);
-            this.Controls.Add(this.lblLatestVersion);
-            this.Controls.Add(this.lblCurrentVersion);
-            this.Controls.Add(this.lblInstructions);
-            this.Controls.Add(this.lblTitle);
             this.Controls.Add(this.menuMain);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuMain;
@@ -263,33 +269,35 @@
             this.menuMain.PerformLayout();
             this.statusMain.ResumeLayout(false);
             this.statusMain.PerformLayout();
+            this.grpLoginInfo.ResumeLayout(false);
+            this.grpLoginInfo.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Button btnUpdateModpack;
-        private System.Windows.Forms.Label lblTitle;
-        private System.Windows.Forms.Label lblCurrentVersion;
-        private System.Windows.Forms.Label lblLatestVersion;
-        private System.Windows.Forms.Label lblInstalledVersionText;
-        private System.Windows.Forms.Label lblOnlineVersionText;
-        private System.Windows.Forms.Button btnCheckUpdate;
         private System.Windows.Forms.MenuStrip menuMain;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem changeDirectoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeProgramToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem minecraftDirectoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pTRDownloadDirectoryToolStripMenuItem;
-        private System.Windows.Forms.Label lblInstructions;
-        private System.Windows.Forms.Button btnExit;
         private System.Windows.Forms.ToolStripMenuItem openAppFolderToolStripMenuItem;
         private System.Windows.Forms.StatusStrip statusMain;
         private System.Windows.Forms.ToolStripProgressBar statusMainProgressBar;
         private System.Windows.Forms.Label lblStatus;
-        private System.Windows.Forms.ComboBox cboxLiveOrPTR;
+        private System.Windows.Forms.Label lblUsername;
+        private System.Windows.Forms.GroupBox grpLoginInfo;
+        private System.Windows.Forms.TextBox tboxPassword;
+        private System.Windows.Forms.TextBox tboxUsername;
+        private System.Windows.Forms.Label lblPassword;
+        private System.Windows.Forms.Label lblLoginStatus;
+        private System.Windows.Forms.Button btnPlay;
+        private System.Windows.Forms.Label lblVersionName;
+        private System.Windows.Forms.Label lblModpackVersion;
+        private System.Windows.Forms.Label lblModpackStatus;
+        private System.Windows.Forms.Label lblModpackStatusText;
     }
 }
 
