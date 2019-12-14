@@ -17,7 +17,7 @@ namespace MLCModpackLauncher
         public string URL { get; private set; }
         public Dictionary<string, bool> ToBeUpdated { get; private set; }
         public Dictionary<string, string> ModpackFolders { get; private set; }
-        public Forge Forge { get; private set; }
+        public ForgePackage Forge { get; private set; }
 
         public ModpackVerFile(int id, string text, string name)
         {
@@ -43,7 +43,7 @@ namespace MLCModpackLauncher
         }
 
         [JsonConstructor]
-        public ModpackVerFile(int id, bool isActive, string text, string name, string fileName, string url, Dictionary<string, bool> toBeUpdated = null, Forge forge = null)
+        public ModpackVerFile(int id, bool isActive, string text, string name, string fileName, string url, Dictionary<string, bool> toBeUpdated = null, ForgePackage forge = null)
         {
             ID = id;
             IsActive = isActive;

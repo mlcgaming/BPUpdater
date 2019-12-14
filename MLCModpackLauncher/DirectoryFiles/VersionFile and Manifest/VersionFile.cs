@@ -12,7 +12,7 @@ namespace MLCModpackLauncher
         public string FileName { get; private set; }
         public string URL { get; private set; }
         public bool IncludesMods, IncludesConfig, IncludesResourcePack, IncludesShaders, IncludesForge;
-        public Forge Forge { get; private set; }
+        public ForgePackage Forge { get; private set; }
 
         public VersionFile(int id, string text, string name)
         {
@@ -31,7 +31,7 @@ namespace MLCModpackLauncher
         }
 
         [JsonConstructor]
-        public VersionFile(int id, bool isActive, string text, string name, string fileName, string url, bool includeMods, bool includeConfig, bool includeResourcePack = false, bool includesShaders = false, bool includesForge = false, Forge forge = null)
+        public VersionFile(int id, bool isActive, string text, string name, string fileName, string url, bool includeMods, bool includeConfig, bool includeResourcePack = false, bool includesShaders = false, bool includesForge = false, ForgePackage forge = null)
         {
             ID = id;
             IsActive = isActive;
