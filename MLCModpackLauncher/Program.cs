@@ -16,7 +16,11 @@ namespace MLCModpackLauncher
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            MainForm form = new MainForm();
+            form.WindowState = FormWindowState.Minimized;
+            form.ShowInTaskbar = false;
+
+            Application.Run(form);
         }
     }
 }

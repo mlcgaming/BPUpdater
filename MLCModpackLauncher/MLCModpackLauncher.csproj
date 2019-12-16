@@ -78,6 +78,9 @@
     <ApplicationIcon>bplogo32x32_Lnh_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BuddyPals">
+      <HintPath>..\..\BuddyPals\BuddyPals\bin\Debug\BuddyPals.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -97,14 +100,6 @@
   <ItemGroup>
     <Compile Include="DirectoryFiles\Authentication\ClientAgent.cs" />
     <Compile Include="DirectoryFiles\Authentication\ClientCodex.cs" />
-    <Compile Include="DirectoryFiles\VersionFile and Manifest\ConfigPackage.cs" />
-    <Compile Include="DirectoryFiles\VersionFile and Manifest\ForgePackage.cs" />
-    <Compile Include="DirectoryFiles\Launcher Files\Library.cs" />
-    <Compile Include="DirectoryFiles\VersionFile and Manifest\ModPackage.cs" />
-    <Compile Include="DirectoryFiles\VersionFile and Manifest\ModpackVerFile.cs" />
-    <Compile Include="DirectoryFiles\VersionFile and Manifest\ScriptsPackage.cs" />
-    <Compile Include="DirectoryFiles\VersionFile and Manifest\ShaderPacksPackage.cs" />
-    <Compile Include="DirectoryFiles\VersionFile and Manifest\ResourcePacksPackage.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -123,7 +118,8 @@
     <Compile Include="MojangLogin\MojangProfile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DirectoryFiles\VersionFile and Manifest\VersionFile.cs" />
+    <Compile Include="Updater\Updater.cs" />
+    <Compile Include="Updater\WorkingVersions.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
