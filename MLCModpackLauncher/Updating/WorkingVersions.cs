@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using BuddyPals;
 using BuddyPals.Versioning;
 
-namespace MLCModpackLauncher.Updater
+namespace MLCModpackLauncher.Updating
 {
     public class WorkingVersions
     {
