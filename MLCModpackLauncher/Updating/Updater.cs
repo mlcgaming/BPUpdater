@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using BuddyPals;
 using BuddyPals.Versioning;
+using WinSCP;
 
 namespace MLCModpackLauncher.Updating
 {
@@ -15,34 +18,38 @@ namespace MLCModpackLauncher.Updating
         public static Manifest WorkingManifest { get; private set; }
         public static string WorkingDirectory { get; private set; }
 
+        private static int TotalFileProgress, CurrentFileProgress, TotalOverallProgress;
         private static string ModDownloadRootUrl, ConfigDownloadRootUrl, ScriptDownloadRootUrl;
         private static DirectoryInfo ModDirectory, ConfigDirectory, ScriptDirectory;
         private static List<FileInfo> CurrentMods, CurrentConfigFiles, CurrentScripts;
         private static List<DirectoryInfo> CurrentConfigDirectories;
-        private static ProgressBar ProgressBar;
+        private static UpdaterForm MyForm;
 
-        public static void Setup(Manifest workingManifest, string workingDirectory, bool isPTRUpdate, ProgressBar progressBar)
+        public static void Setup(Manifest workingManifest, string workingDirectory, bool isPTRUpdate, UpdaterForm form)
         {
             WorkingManifest = workingManifest;
             WorkingDirectory = workingDirectory;
-            ProgressBar = progressBar;
+            MyForm = form;
+            TotalFileProgress = 0;
+            CurrentFileProgress = 0;
+            TotalOverallProgress = 0;
 
             if(isPTRUpdate == true)
             {
                 ModDownloadRootUrl = Library.ModPTRDownloadRootUrl;
-                ConfigDownloadRootUrl = Library.ConfigPTRDownloadRootUrl;
+                ConfigDownloadRootUrl = "/modpack/bin/ptr/configs/";
                 ScriptDownloadRootUrl = Library.ScriptPTRDownloadRootUrl;
             }
             else
             {
                 ModDownloadRootUrl = Library.ModDownloadRootUrl;
-                ConfigDownloadRootUrl = Library.ConfigDownloadRootUrl;
+                ConfigDownloadRootUrl = "/modpack/bin/stable/configs/";
                 ScriptDownloadRootUrl = Library.ScriptDownloadRootUrl;
             }
 
-            ModDirectory = new DirectoryInfo(Path.Combine(WorkingDirectory, "mods"));
-            ConfigDirectory = new DirectoryInfo(Path.Combine(WorkingDirectory, "config"));
-            ScriptDirectory = new DirectoryInfo(Path.Combine(WorkingDirectory, "scripts"));
+            ModDirectory = new DirectoryInfo(Path.Combine(WorkingDirectory, "mods\\"));
+            ConfigDirectory = new DirectoryInfo(Path.Combine(WorkingDirectory, "config\\"));
+            ScriptDirectory = new DirectoryInfo(Path.Combine(WorkingDirectory, "scripts\\"));
 
             CurrentMods = new List<FileInfo>();
             CurrentConfigFiles = new List<FileInfo>();
@@ -77,57 +84,215 @@ namespace MLCModpackLauncher.Updating
                     CurrentScripts.Add(file);
                 }
             }
-        }
 
+            TotalFileProgress = workingManifest.Mods.Count + workingManifest.Scripts.Count;
+            MyForm.SetTotalItems(TotalFileProgress);
+        }
         public static void PerformUpdate()
         {
+            MyForm.Show();
+
             if(WorkingManifest.Mods.Count > 0)
             {
                 foreach(ModPackage mod in WorkingManifest.Mods)
                 {
-                    ProgressBar.Value = 0;
                     UpdateMod(mod);
+                    CurrentFileProgress += 1;
+                    SetOverallProgress();
                 }
             }
             if(WorkingManifest.Scripts.Count > 0)
             {
                 foreach(ManifestPackage script in WorkingManifest.Scripts)
                 {
-                    ProgressBar.Value = 0;
                     UpdateScript(script);
+                    CurrentFileProgress += 1;
+                    SetOverallProgress();
                 }
             }
+
+            MyForm.Close();
         }
 
         private static void UpdateMod(ModPackage modPackage)
         {
+            SetCurrentItem(modPackage.Name);
             // Set Up Our URL's for Downloading
             string modDownloadUrl = ModDownloadRootUrl + modPackage.Latest;
-            List<string> configDownloadUrls = new List<string>();
-            if(modPackage.Config.Type != ConfigPackage.ConfigType.Null)
+            UpdateStatus("Checking " + modPackage.Name);
+            FileInfo modLatestFileInfo = new FileInfo(Path.Combine(ModDirectory.FullName, modPackage.Latest));
+
+            // Iterate through all current mod files
+            if(CurrentMods.Contains(modLatestFileInfo) == false)
             {
-                foreach(string path in modPackage.Config.PathName)
+                // Mods folder is missing the mod, download it!
+                UpdateStatus("Downloading " + modPackage.Latest + " ...");
+                DownloadFile(modDownloadUrl, Path.Combine(ModDirectory.FullName, modPackage.Latest));
+            }
+            else
+            {
+                // Mods Folder already has the mod
+                // Check for Forced Update and Process accordingly
+                if(modPackage.Forced == true)
                 {
-                    configDownloadUrls.Add(ConfigDownloadRootUrl + path);
+                    UpdateStatus("Downloading " + modPackage.Latest + " ...");
+                    File.Delete(Path.Combine(ModDirectory.FullName, modPackage.Latest));
+                    DownloadFile(modDownloadUrl, Path.Combine(ModDirectory.FullName, modPackage.Latest));
                 }
             }
 
-            
+            // Iterate through Current Mods and Delete historical versions
+            UpdateStatus("Removing Old Versions of " + modPackage.Name);
+            foreach (FileInfo file in CurrentMods)
+            {
+                // Search for and Delete matches of historical files
+                foreach (string oldfile in modPackage.History)
+                {
+                    FileInfo modOldFileInfo = new FileInfo(Path.Combine(ModDirectory.FullName, oldfile));
+                    if (file.Name == oldfile)
+                    {
+                        File.Delete(Path.Combine(ModDirectory.FullName, oldfile));
+                    }
+                }
+            }
+
+            // CONFIG(S)
+            // Config Files are always updated
+            if(modPackage.Config.Type != ConfigPackage.ConfigType.Null)
+            {
+                UpdateStatus("Updating " + modPackage.Name + " Config File(s)");
+                switch (modPackage.Config.Type)
+                {
+                    case ConfigPackage.ConfigType.File:
+                        {
+                            foreach(string configFile in modPackage.Config.PathName)
+                            {
+                                foreach (FileInfo currentConfig in CurrentConfigFiles)
+                                {
+                                    // Search for Match and Delete if Found
+                                    if(currentConfig.Name == configFile)
+                                    {
+                                        File.Delete(Path.Combine(ConfigDirectory.FullName, currentConfig.Name));
+                                    }
+                                }
+
+                                // Download A Copy of the Config
+                                string configDownloadUrl = ConfigDownloadRootUrl + configFile;
+                                UpdateStatus("Downloading Config File: " + configFile);
+                                DownloadFile("ftp://mc.mlcgaming.com" + configDownloadUrl, Path.Combine(ConfigDirectory.FullName, configFile));
+                            }
+                            break;
+                        }
+                    case ConfigPackage.ConfigType.Directory:
+                        {
+                            foreach (string configDirectory in modPackage.Config.PathName)
+                            {
+                                foreach (DirectoryInfo currentConfig in CurrentConfigDirectories)
+                                {
+                                    // Search for Match and Delete if Found
+                                    if (currentConfig.FullName.Contains(configDirectory) == true)
+                                    {
+                                        Directory.Delete(currentConfig.FullName, true);
+                                    }
+                                }
+
+                                // Download A Copy of the Config
+                                string configDownloadUrl = ConfigDownloadRootUrl + configDirectory + "/*";
+                                UpdateStatus("Downloading Config File: " + configDirectory);
+                                DownloadDirectory("mc.mlcgaming.com", configDownloadUrl, Path.Combine(ConfigDirectory.FullName, configDirectory));
+                            }
+                            break;
+                        }
+                }
+            }
         }
         private static void UpdateScript(ManifestPackage scriptPackage)
         {
             // Set up our URL's for Downloading
-            List<string> downloadUrls = new List<string>();
             foreach(string file in scriptPackage.Files)
             {
-                downloadUrls.Add(ScriptDownloadRootUrl + file);
+                foreach(FileInfo existingfile in CurrentScripts)
+                {
+                    if(existingfile.Name == file)
+                    {
+                        File.Delete(existingfile.FullName);
+                    }
+                }
+
+                string downloadURL = ScriptDownloadRootUrl + file;
+                UpdateStatus("Downloading Script File: " + file);
+                DownloadFile(downloadURL, Path.Combine(ScriptDirectory.FullName, file));
             }
-
-
         }
-        private static string CreateFullUrl(string rootUrl, string fileName)
+        /// <summary>
+        /// Downloads File from URL specified to the Path specified
+        /// </summary>
+        /// <param name="url">Full URL of the File to be Downloaded</param>
+        /// <param name="filePath">Full Path with File Name of the Destination File</param>
+        /// <param name="username">Username to Use for FTP Connection (Default is "anonymous"</param>
+        /// <param name="password">Password to Use for FTP Connection (Default is "")</param>
+        private static void DownloadFile(string url, string filePath, string username = "anonymous", string password = "")
         {
-            return rootUrl + fileName;
+            using (WebClient request = new WebClient())
+            {
+                request.Credentials = new NetworkCredential("ftpuser", "mlcTech19!");
+                request.DownloadProgressChanged += ProgressChanged;
+                request.DownloadFileAsync(new Uri(url), filePath);
+            }
+        }
+        /// <summary>
+        /// Downloads Directory from URL specified to the Path specified
+        /// </summary>
+        /// <param name="host">FQDN or IP address of the FTP Host (Default is "mc.mlcgaming.com"</param>
+        /// <param name="directory">Directory to be downloaded, as an extension of the Host (e.g. for mc.mlcgaming.com/downloads/directory/ this would be /downloads/directory/</param>
+        /// <param name="downloadPath">The Root Directory to Copy the Downloaded Directories (e.g. To download /downloads/directory/ and get C:/Temp/downloads/directory/ this would be "C:/Temp/downloads/directory/*"</param>
+        /// <param name="username">Username used to access the FTP service</param>
+        /// <param name="password">Password used to access the FTP service</param>
+        private static void DownloadDirectory(string host, string directory, string downloadPath, string username = "anonymous", string password = "")
+        {
+            SessionOptions sessionOptions = new SessionOptions
+            {
+                Protocol = Protocol.Ftp,
+                HostName = host,
+                UserName = username,
+                Password = password
+            };
+
+            using (Session session = new Session())
+            {
+                session.Open(sessionOptions);
+                session.GetFiles(directory, downloadPath + "\\*").Check();
+            }
+        }
+
+        private static void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            SetCurrentItemProgress(e.ProgressPercentage);
+        }
+        private static void CalculateOverallProgress()
+        {
+            TotalOverallProgress = (int)(100*((double)CurrentFileProgress / (double)TotalFileProgress));
+        }
+        private static void SetCurrentItemProgress(int value)
+        {
+            MyForm.SetCurrentItemProgress(value);
+            MyForm.Update();
+        }
+        private static void SetOverallProgress()
+        {
+            CalculateOverallProgress();
+            MyForm.SetOverallProgress(TotalOverallProgress, CurrentFileProgress);
+            MyForm.Update();
+        }
+        private static void SetCurrentItem(string currentItem)
+        {
+            MyForm.SetCurrentItem(currentItem);
+            MyForm.Update();
+        }
+        private static void UpdateStatus(string status)
+        {
+            MyForm.UpdateStatus(status);
+            MyForm.Update();
         }
     }
 }

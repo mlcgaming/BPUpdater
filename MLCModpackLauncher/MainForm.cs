@@ -132,7 +132,7 @@ namespace MLCModpackLauncher
                             case "Live":
                                 {
                                     LatestVersion = JsonConvert.DeserializeObject<VersionFile>(File.ReadAllText(Library.UpdaterDirectory + "stable.ver"));
-                                    if(LatestVersion.ID != CurrentVersion.ID)
+                                    if (LatestVersion.ID != CurrentVersion.ID)
                                     {
                                         lblUpdateAvailable.Visible = true;
                                         lblUpdateToVersion.Text = "Update to Version " + LatestVersion.DisplayID + "?";
@@ -151,7 +151,7 @@ namespace MLCModpackLauncher
                                 }
                             case "PTR":
                                 {
-                                    CurrentVersion = 
+                                    CurrentVersion =
                                     LatestVersion = JsonConvert.DeserializeObject<VersionFile>(File.ReadAllText(Library.UpdaterDirectory + "ptr.ver"));
                                     break;
                                 }
@@ -338,7 +338,47 @@ namespace MLCModpackLauncher
 
         private void btnApplyUpdate_Click(object sender, EventArgs e)
         {
+            btnApplyUpdate.Enabled = false;
+            btnApplyUpdate.Visible = false;
+            Updater.Setup(LatestVersion.Manifest, Options.MinecraftDirectory, false, new UpdaterForm(LatestVersion.DisplayID));
+            Updater.PerformUpdate();
             
+            if(File.Exists(Library.UpdaterVersionFilePath) == true)
+            {
+                File.Delete(Library.UpdaterVersionFilePath);
+            }
+
+            string latestJson = JsonConvert.SerializeObject(LatestVersion, Formatting.Indented);
+            File.WriteAllText(Library.UpdaterVersionFilePath, latestJson);
+
+            ResetForm();
+
+            State = WindowState.Checking;
+
+            if (cmbVersionChoice.SelectedItem.ToString() == "Live")
+            {
+                // Check for Live VersionFile
+                AppendLog("Checking Stable Versionfile from " + Library.OnlineVersionFileUrl);
+                using (WebClient request = new WebClient())
+                {
+                    request.Credentials = new NetworkCredential("ftpuser", "mlcTech19!");
+                    request.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCompleted);
+                    request.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                    request.DownloadFileAsync(new Uri(Library.OnlineVersionFileUrl), Library.UpdaterDirectory + "stable.ver");
+                }
+            }
+            else
+            {
+                // Check for PTR VersionFile
+                AppendLog("Checking PTR Versionfile from " + Library.OnlinePTRVersionFileUrl);
+                using (WebClient request = new WebClient())
+                {
+                    request.Credentials = new NetworkCredential("ftpuser", "mlcTech19!");
+                    request.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCompleted);
+                    request.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                    request.DownloadFileAsync(new Uri(Library.OnlinePTRVersionFileUrl), Library.UpdaterDirectory + "ptr.ver");
+                }
+            }
         }
 
         private void ChangeStatus(string message)
