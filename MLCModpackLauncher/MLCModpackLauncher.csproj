@@ -103,12 +103,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DirectoryFiles\Authentication\ClientAgent.cs" />
-    <Compile Include="DirectoryFiles\Authentication\ClientCodex.cs" />
-    <Compile Include="MainForm.cs">
+    <Compile Include="Forms\AboutForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
+    <Compile Include="Forms\AboutForm.Designer.cs">
+      <DependentUpon>AboutForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="MojangLauncherProfile\LauncherProfile.cs" />
@@ -119,20 +123,30 @@
     <Compile Include="MojangLauncherProfile\LauncherProfileSettings.cs" />
     <Compile Include="MojangLauncherProfile\MojangLauncherProfileFile.cs" />
     <Compile Include="DirectoryFiles\Launcher Files\OptionsConfiguration.cs" />
-    <Compile Include="MojangLogin\MojangLauncherLogin.cs" />
-    <Compile Include="MojangLogin\MojangProfile.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UpdaterForm.cs">
+    <Compile Include="Forms\OlderVersionsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UpdaterForm.Designer.cs">
+    <Compile Include="Forms\OlderVersionsForm.Designer.cs">
+      <DependentUpon>OlderVersionsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Forms\UpdaterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\UpdaterForm.Designer.cs">
       <DependentUpon>UpdaterForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Updating\Updater.cs" />
     <Compile Include="Updating\WorkingVersions.cs" />
-    <EmbeddedResource Include="MainForm.resx">
+    <EmbeddedResource Include="Forms\AboutForm.resx">
+      <DependentUpon>AboutForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\OlderVersionsForm.resx">
+      <DependentUpon>OlderVersionsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -143,7 +157,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="UpdaterForm.resx">
+    <EmbeddedResource Include="Forms\UpdaterForm.resx">
       <DependentUpon>UpdaterForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />

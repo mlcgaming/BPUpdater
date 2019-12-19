@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Windows.Forms;
-using MLCModpackLauncher.MojangLauncherProfile;
-using MLCModpackLauncher.DirectoryFiles;
 using MLCModpackLauncher.Updating;
 using Newtonsoft.Json;
 using BuddyPals;
@@ -19,13 +17,14 @@ namespace MLCModpackLauncher
     {
         OptionsConfiguration Options;
         VersionFile CurrentVersion, LatestVersion;
-        WindowState State;
+        VersionManifest MasterVersionManifest;
+        MainFormState State;
 
-        enum WindowState
+        enum MainFormState
         {
             Idle,
-            Checking,
-            Installing
+            CheckingVersion,
+            ObtainingMasterManifest
         }
 
         public MainForm()
@@ -60,6 +59,9 @@ namespace MLCModpackLauncher
         private void InitializeMainForm()
         {
             ResetForm();
+            State = MainFormState.ObtainingMasterManifest;
+            CheckMasterVersionManifest();
+            CheckForUpdate();
         }
         private void InitializeOptions()
         {
@@ -97,77 +99,85 @@ namespace MLCModpackLauncher
                 }
             }
         }
-        
-        private void DownloadFileFTP(string downloadPath)
+        private void CheckMasterVersionManifest()
         {
-            State = WindowState.Installing;
-            string fileName = LatestVersion.FileName;
-            AppendLog("Downloading latest modpack to " + downloadPath);
+            if(File.Exists(Path.Combine(Library.UpdaterDirectory, "versions")) == true)
+            {
+                File.Delete(Path.Combine(Library.UpdaterDirectory, "versions"));
+            }
+            DownloadFileFTP("ftp://mc.mlcgaming.com/modpack/bin/repository/versions", Path.Combine(Library.UpdaterDirectory, "versions"));
+        }
+        private void CheckForUpdate()
+        {
+            if(File.Exists(Path.Combine(Library.UpdaterDirectory, "stable.ver")) == true)
+            {
+                File.Delete(Path.Combine(Library.UpdaterDirectory, "stable.ver"));
+            }
+            if (File.Exists(Path.Combine(Library.UpdaterDirectory, "ptr.ver")) == true)
+            {
+                File.Delete(Path.Combine(Library.UpdaterDirectory, "ptr.ver"));
+            }
+
+            State = MainFormState.CheckingVersion;
+            DownloadFileFTP("ftp://mc.mlcgaming.com/modpack/bin/stable/client.ver", Path.Combine(Library.UpdaterDirectory, "stable.ver"));
+        }
+        private void CompareVersions()
+        {
+            LatestVersion = JsonConvert.DeserializeObject<VersionFile>(File.ReadAllText(Library.UpdaterDirectory + "stable.ver"));
+            if (LatestVersion.ID != CurrentVersion.ID)
+            {
+                lblUpdateAvailable.Visible = true;
+                lblUpdateToVersion.Text = "Update to Version " + LatestVersion.DisplayID + "?";
+                lblUpdateToVersion.Visible = true;
+                btnApplyUpdate.Visible = true;
+                btnApplyUpdate.Enabled = true;
+                Height = 211;
+            }
+            else
+            {
+                lblUpdateAvailable.Text = "Modpack is Up-To-Date!";
+                lblUpdateAvailable.Visible = true;
+                Height = 169;
+            }
+
+            State = MainFormState.Idle;
+        }
+        
+        private void DownloadFileFTP(string ftpURL, string fileDestinationPath)
+        {
+            AppendLog("Downloading from " + ftpURL + " to " + fileDestinationPath);
             using (WebClient request = new WebClient())
             {
                 request.Credentials = new NetworkCredential("ftpuser", "mlcTech19!");
                 request.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCompleted);
-                request.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                request.DownloadFileAsync(new Uri(LatestVersion.URL), downloadPath + fileName);
+                request.DownloadFileAsync(new Uri(ftpURL), fileDestinationPath);
             }
-        }
-        private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        {
-            statusMainProgressBar.Value = e.ProgressPercentage;
-            lblStatus.Text = "Downloading Update.." + "(" + statusMainProgressBar.Value.ToString() + "%)";
         }
         private void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
         {
             switch (State)
             {
-                case WindowState.Idle:
+                case MainFormState.Idle:
                     {
-                        MessageBox.Show("Not sure how you got here. You completed a download without being in an Installing or Checking state. Report this bug and what you did to get here to max@mlcgaming.com!");
                         break;
                     }
-                case WindowState.Checking:
+                case MainFormState.CheckingVersion:
                     {
-                        switch (cmbVersionChoice.SelectedItem.ToString())
-                        {
-                            case "Live":
-                                {
-                                    LatestVersion = JsonConvert.DeserializeObject<VersionFile>(File.ReadAllText(Library.UpdaterDirectory + "stable.ver"));
-                                    if (LatestVersion.ID != CurrentVersion.ID)
-                                    {
-                                        lblUpdateAvailable.Visible = true;
-                                        lblUpdateToVersion.Text = "Update to Version " + LatestVersion.DisplayID + "?";
-                                        lblUpdateToVersion.Visible = true;
-                                        btnApplyUpdate.Visible = true;
-                                        btnApplyUpdate.Enabled = true;
-                                        Height = 211;
-                                    }
-                                    else
-                                    {
-                                        lblUpdateAvailable.Text = "Modpack is Up-To-Date!";
-                                        lblUpdateAvailable.Visible = true;
-                                        Height = 169;
-                                    }
-                                    break;
-                                }
-                            case "PTR":
-                                {
-                                    CurrentVersion =
-                                    LatestVersion = JsonConvert.DeserializeObject<VersionFile>(File.ReadAllText(Library.UpdaterDirectory + "ptr.ver"));
-                                    break;
-                                }
-                        }
+                        Thread.Sleep(1000);
+                        CompareVersions();
                         break;
                     }
-                case WindowState.Installing:
+                case MainFormState.ObtainingMasterManifest:
                     {
-
+                        Thread.Sleep(1000);
+                        MasterVersionManifest = JsonConvert.DeserializeObject<VersionManifest>(File.ReadAllText(Path.Combine(Library.UpdaterDirectory, "versions")));
+                        State = MainFormState.Idle;
                         break;
                     }
             }
 
             AppendLog("Download completed! Proceeding to modpack update.");
             ChangeStatus("Unpacking Modpack Files");
-            statusMainProgressBar.Value = 0;
         }
 
         private void btnExit_Click_1(object sender, EventArgs e)
@@ -177,35 +187,6 @@ namespace MLCModpackLauncher
         private void openAppFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Process.Start("explorer.exe", Library.RootDirectory);
-        }
-        private void cmbVersionChoice_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            State = WindowState.Checking;
-
-            if(cmbVersionChoice.SelectedItem.ToString() == "Live")
-            {
-                // Check for Live VersionFile
-                AppendLog("Checking Stable Versionfile from " + Library.OnlineVersionFileUrl);
-                using (WebClient request = new WebClient())
-                {
-                    request.Credentials = new NetworkCredential("ftpuser", "mlcTech19!");
-                    request.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCompleted);
-                    request.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                    request.DownloadFileAsync(new Uri(Library.OnlineVersionFileUrl), Library.UpdaterDirectory + "stable.ver");
-                }
-            }
-            else
-            {
-                // Check for PTR VersionFile
-                AppendLog("Checking PTR Versionfile from " + Library.OnlinePTRVersionFileUrl);
-                using (WebClient request = new WebClient())
-                {
-                    request.Credentials = new NetworkCredential("ftpuser", "mlcTech19!");
-                    request.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCompleted);
-                    request.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                    request.DownloadFileAsync(new Uri(Library.OnlinePTRVersionFileUrl), Library.UpdaterDirectory + "ptr.ver");
-                }
-            }
         }
 
         public static void CopyAll(DirectoryInfo source, DirectoryInfo target)
@@ -272,7 +253,7 @@ namespace MLCModpackLauncher
 
         private void ResetForm()
         {
-            State = WindowState.Idle;
+            State = MainFormState.Idle;
             HideStatus();
             lblUpdateAvailable.Visible = false;
             lblUpdateToVersion.Visible = false;
@@ -303,7 +284,6 @@ namespace MLCModpackLauncher
             InitializeOptions();
 
             lblModpackVersion.Text = "Currently Running v" + CurrentVersion.DisplayID;
-            cmbVersionChoice.SelectedIndex = 0;
         }
         private void AppendLog(string logMessage, bool isNewLine = true)
         {
@@ -327,13 +307,11 @@ namespace MLCModpackLauncher
         }
         private void HideStatus()
         {
-            lblModpackStatus.Visible = false;
-            statusMain.Visible = false;
+            
         }
         private void ShowStatus()
         {
-            lblModpackStatus.Visible = true;
-            statusMain.Visible = true;
+            
         }
 
         private void btnApplyUpdate_Click(object sender, EventArgs e)
@@ -352,33 +330,31 @@ namespace MLCModpackLauncher
             File.WriteAllText(Library.UpdaterVersionFilePath, latestJson);
 
             ResetForm();
-
-            State = WindowState.Checking;
-
-            if (cmbVersionChoice.SelectedItem.ToString() == "Live")
-            {
-                // Check for Live VersionFile
-                AppendLog("Checking Stable Versionfile from " + Library.OnlineVersionFileUrl);
-                using (WebClient request = new WebClient())
-                {
-                    request.Credentials = new NetworkCredential("ftpuser", "mlcTech19!");
-                    request.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCompleted);
-                    request.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                    request.DownloadFileAsync(new Uri(Library.OnlineVersionFileUrl), Library.UpdaterDirectory + "stable.ver");
-                }
-            }
-            else
-            {
-                // Check for PTR VersionFile
-                AppendLog("Checking PTR Versionfile from " + Library.OnlinePTRVersionFileUrl);
-                using (WebClient request = new WebClient())
-                {
-                    request.Credentials = new NetworkCredential("ftpuser", "mlcTech19!");
-                    request.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCompleted);
-                    request.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                    request.DownloadFileAsync(new Uri(Library.OnlinePTRVersionFileUrl), Library.UpdaterDirectory + "ptr.ver");
-                }
-            }
+           State = MainFormState.CheckingVersion;
+        }
+        private void aboutBuddyPalsUpdaterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Open AboutForm as Dialog
+            AboutForm about = new AboutForm();
+            about.ShowDialog();
+        }
+        private void modModpackIssueToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Submit a Mod/Modpack Issue as an Email to max@mlcgaming.com
+        }
+        private void updaterIssueToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Create an Issue on the BPUpdater Github page
+        }
+        private void generalInquiryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Email to max@mlcgaming.com
+        }
+        private void downloadOlderVersionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Open OlderVersionsForm
+            OlderVersionsForm olderVersions = new OlderVersionsForm(MasterVersionManifest);
+            olderVersions.ShowDialog();
         }
 
         private void ChangeStatus(string message)
