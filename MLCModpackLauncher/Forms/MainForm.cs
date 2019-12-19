@@ -26,6 +26,11 @@ namespace MLCModpackLauncher
             CheckingVersion,
             ObtainingMasterManifest
         }
+        enum DownloadedItem
+        {
+            VersionManifest,
+            VersionFile
+        }
 
         public MainForm()
         {
@@ -105,7 +110,8 @@ namespace MLCModpackLauncher
             {
                 File.Delete(Path.Combine(Library.UpdaterDirectory, "versions"));
             }
-            DownloadFileFTP("ftp://mc.mlcgaming.com/modpack/bin/repository/versions", Path.Combine(Library.UpdaterDirectory, "versions"));
+            DownloadFileFTP("ftp://mc.mlcgaming.com/modpack/bin/repository/versions", Path.Combine(Library.UpdaterDirectory, "versions"),
+                DownloadedItem.VersionManifest);
         }
         private void CheckForUpdate()
         {
@@ -119,7 +125,8 @@ namespace MLCModpackLauncher
             }
 
             State = MainFormState.CheckingVersion;
-            DownloadFileFTP("ftp://mc.mlcgaming.com/modpack/bin/stable/client.ver", Path.Combine(Library.UpdaterDirectory, "stable.ver"));
+            DownloadFileFTP("ftp://mc.mlcgaming.com/modpack/bin/stable/client.ver", Path.Combine(Library.UpdaterDirectory, "stable.ver"),
+                DownloadedItem.VersionFile);
         }
         private void CompareVersions()
         {
@@ -143,41 +150,38 @@ namespace MLCModpackLauncher
             State = MainFormState.Idle;
         }
         
-        private void DownloadFileFTP(string ftpURL, string fileDestinationPath)
+        private void DownloadFileFTP(string ftpURL, string fileDestinationPath, DownloadedItem item)
         {
             AppendLog("Downloading from " + ftpURL + " to " + fileDestinationPath);
             using (WebClient request = new WebClient())
             {
                 request.Credentials = new NetworkCredential("ftpuser", "mlcTech19!");
-                request.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCompleted);
+                switch (item)
+                {
+                    case DownloadedItem.VersionFile:
+                        {
+                            request.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadVersionFileCompleted);
+                            break;
+                        }
+                    case DownloadedItem.VersionManifest:
+                        {
+                            request.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadVersionManifestCompleted);
+                            break;
+                        }
+                }
                 request.DownloadFileAsync(new Uri(ftpURL), fileDestinationPath);
             }
         }
-        private void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
+        private void DownloadVersionFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            switch (State)
-            {
-                case MainFormState.Idle:
-                    {
-                        break;
-                    }
-                case MainFormState.CheckingVersion:
-                    {
-                        Thread.Sleep(1000);
-                        CompareVersions();
-                        break;
-                    }
-                case MainFormState.ObtainingMasterManifest:
-                    {
-                        Thread.Sleep(1000);
-                        MasterVersionManifest = JsonConvert.DeserializeObject<VersionManifest>(File.ReadAllText(Path.Combine(Library.UpdaterDirectory, "versions")));
-                        State = MainFormState.Idle;
-                        break;
-                    }
-            }
-
-            AppendLog("Download completed! Proceeding to modpack update.");
-            ChangeStatus("Unpacking Modpack Files");
+            Thread.Sleep(1000);
+            CompareVersions();
+        }
+        private void DownloadVersionManifestCompleted(object sender, AsyncCompletedEventArgs e)
+        {
+            Thread.Sleep(1000);
+            MasterVersionManifest = JsonConvert.DeserializeObject<VersionManifest>(File.ReadAllText(Path.Combine(Library.UpdaterDirectory, "versions")));
+            State = MainFormState.Idle;
         }
 
         private void btnExit_Click_1(object sender, EventArgs e)
