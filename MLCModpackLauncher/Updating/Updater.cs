@@ -13,19 +13,31 @@ using WinSCP;
 
 namespace MLCModpackLauncher.Updating
 {
-    public static class Updater
+    public class UpdaterCompleteEventArgs : EventArgs
     {
-        public static Manifest WorkingManifest { get; private set; }
-        public static string WorkingDirectory { get; private set; }
+        public bool UpdateSuccessful { get; set; }
+    }
 
-        private static int TotalFileProgress, CurrentFileProgress, TotalOverallProgress;
-        private static string ModDownloadRootUrl, ConfigDownloadRootUrl, ScriptDownloadRootUrl;
-        private static DirectoryInfo ModDirectory, ConfigDirectory, ScriptDirectory;
-        private static List<FileInfo> CurrentMods, CurrentConfigFiles, CurrentScripts;
-        private static List<DirectoryInfo> CurrentConfigDirectories;
-        private static UpdaterForm MyForm;
+    public class Updater : IDisposable
+    {
+        public Manifest WorkingManifest { get; private set; }
+        public string WorkingDirectory { get; private set; }
 
-        public static void Setup(Manifest workingManifest, string workingDirectory, bool isPTRUpdate, UpdaterForm form)
+        private int TotalFileProgress, CurrentFileProgress, TotalOverallProgress;
+        private string ModDownloadRootUrl, ConfigDownloadRootUrl, ScriptDownloadRootUrl;
+        private DirectoryInfo ModDirectory, ConfigDirectory, ScriptDirectory;
+        private List<FileInfo> CurrentMods, CurrentConfigFiles, CurrentScripts;
+        private List<DirectoryInfo> CurrentConfigDirectories;
+        private UpdaterForm MyForm;
+
+        public event EventHandler<UpdaterCompleteEventArgs> UpdateComplete;
+
+        public Updater (Manifest workingManifest, string workingDirectory, bool isPTRUpdate, UpdaterForm form)
+        {
+            Initialize(workingManifest, workingDirectory, isPTRUpdate, form);
+        }
+
+        public void Initialize(Manifest workingManifest, string workingDirectory, bool isPTRUpdate, UpdaterForm form)
         {
             WorkingManifest = workingManifest;
             WorkingDirectory = workingDirectory;
@@ -88,7 +100,7 @@ namespace MLCModpackLauncher.Updating
             TotalFileProgress = workingManifest.Mods.Count + workingManifest.Scripts.Count;
             MyForm.SetTotalItems(TotalFileProgress);
         }
-        public static void PerformUpdate()
+        public void PerformUpdate()
         {
             MyForm.Show();
 
@@ -111,10 +123,10 @@ namespace MLCModpackLauncher.Updating
                 }
             }
 
-            MyForm.Close();
+            OnUpdateComplete();
         }
 
-        private static void UpdateMod(ModPackage modPackage)
+        private void UpdateMod(ModPackage modPackage)
         {
             SetCurrentItem(modPackage.Name);
             // Set Up Our URL's for Downloading
@@ -206,7 +218,7 @@ namespace MLCModpackLauncher.Updating
                 }
             }
         }
-        private static void UpdateScript(ManifestPackage scriptPackage)
+        private void UpdateScript(ManifestPackage scriptPackage)
         {
             // Set up our URL's for Downloading
             foreach(string file in scriptPackage.Files)
@@ -231,7 +243,7 @@ namespace MLCModpackLauncher.Updating
         /// <param name="filePath">Full Path with File Name of the Destination File</param>
         /// <param name="username">Username to Use for FTP Connection (Default is "anonymous"</param>
         /// <param name="password">Password to Use for FTP Connection (Default is "")</param>
-        private static void DownloadFile(string url, string filePath, string username = "anonymous", string password = "")
+        private void DownloadFile(string url, string filePath, string username = "anonymous", string password = "")
         {
             using (WebClient request = new WebClient())
             {
@@ -248,7 +260,7 @@ namespace MLCModpackLauncher.Updating
         /// <param name="downloadPath">The Root Directory to Copy the Downloaded Directories (e.g. To download /downloads/directory/ and get C:/Temp/downloads/directory/ this would be "C:/Temp/downloads/directory/*"</param>
         /// <param name="username">Username used to access the FTP service</param>
         /// <param name="password">Password used to access the FTP service</param>
-        private static void DownloadDirectory(string host, string directory, string downloadPath, string username = "anonymous", string password = "")
+        private void DownloadDirectory(string host, string directory, string downloadPath, string username = "anonymous", string password = "")
         {
             SessionOptions sessionOptions = new SessionOptions
             {
@@ -265,34 +277,61 @@ namespace MLCModpackLauncher.Updating
             }
         }
 
-        private static void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             SetCurrentItemProgress(e.ProgressPercentage);
         }
-        private static void CalculateOverallProgress()
+        private void CalculateOverallProgress()
         {
             TotalOverallProgress = (int)(100*((double)CurrentFileProgress / (double)TotalFileProgress));
         }
-        private static void SetCurrentItemProgress(int value)
+        private void SetCurrentItemProgress(int value)
         {
             MyForm.SetCurrentItemProgress(value);
             MyForm.Update();
         }
-        private static void SetOverallProgress()
+        private void SetOverallProgress()
         {
             CalculateOverallProgress();
             MyForm.SetOverallProgress(TotalOverallProgress, CurrentFileProgress);
             MyForm.Update();
         }
-        private static void SetCurrentItem(string currentItem)
+        private void SetCurrentItem(string currentItem)
         {
             MyForm.SetCurrentItem(currentItem);
             MyForm.Update();
         }
-        private static void UpdateStatus(string status)
+        private void UpdateStatus(string status)
         {
             MyForm.UpdateStatus(status);
             MyForm.Update();
+        }
+
+        public void Dispose()
+        {
+            MyForm.Close();
+            MyForm = null;
+            WorkingManifest = null;
+            WorkingDirectory = null;
+
+            TotalFileProgress = 0;
+            CurrentFileProgress = 0;
+            TotalOverallProgress = 0;
+            ModDownloadRootUrl = null;
+            ConfigDownloadRootUrl = null;
+            ScriptDownloadRootUrl = null;
+            ModDirectory = null;
+            ConfigDirectory = null;
+            ScriptDirectory = null;
+            CurrentMods = null;
+            CurrentConfigFiles = null;
+            CurrentScripts = null;
+            CurrentConfigDirectories = null;
+        }
+
+        public void OnUpdateComplete()
+        {
+            UpdateComplete?.Invoke(null, new UpdaterCompleteEventArgs() { UpdateSuccessful = true });
         }
     }
 }

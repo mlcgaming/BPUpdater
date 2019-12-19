@@ -322,8 +322,11 @@ namespace MLCModpackLauncher
         {
             btnApplyUpdate.Enabled = false;
             btnApplyUpdate.Visible = false;
-            Updater.Setup(LatestVersion.Manifest, Options.MinecraftDirectory, false, new UpdaterForm(LatestVersion.DisplayID));
-            Updater.PerformUpdate();
+            using(Updater updater = new Updater(LatestVersion.Manifest, Options.MinecraftDirectory, false, new UpdaterForm(LatestVersion.DisplayID)))
+            {
+                updater.UpdateComplete += OnUpdaterComplate;
+                updater.PerformUpdate();
+            }
             
             if(File.Exists(Library.UpdaterVersionFilePath) == true)
             {
@@ -366,6 +369,11 @@ namespace MLCModpackLauncher
             lblStatus.Text = message;
             lblStatus.Refresh();
             Thread.Sleep(500);
+        }
+        private void OnUpdaterComplate(object sender, UpdaterCompleteEventArgs e)
+        {
+            CheckForUpdate();
+            CompareVersions();
         }
     }
 }
