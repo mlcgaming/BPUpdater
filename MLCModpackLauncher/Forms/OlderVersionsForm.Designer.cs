@@ -33,11 +33,11 @@
             this.btnDownload = new System.Windows.Forms.Button();
             this.btnClose = new System.Windows.Forms.Button();
             this.grpVersion = new System.Windows.Forms.GroupBox();
-            this.lblVersionName = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.lblForgeRequirementValue = new System.Windows.Forms.Label();
-            this.lblVersionNameValue = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.lblVersionNameValue = new System.Windows.Forms.Label();
+            this.lblForgeRequirementValue = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lblVersionName = new System.Windows.Forms.Label();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.statusProgressbar = new System.Windows.Forms.ToolStripProgressBar();
             this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -56,6 +56,7 @@
             // 
             // cmbVersions
             // 
+            this.cmbVersions.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbVersions.FormattingEnabled = true;
             this.cmbVersions.Location = new System.Drawing.Point(196, 13);
             this.cmbVersions.Name = "cmbVersions";
@@ -98,32 +99,15 @@
             this.grpVersion.TabIndex = 4;
             this.grpVersion.TabStop = false;
             // 
-            // lblVersionName
+            // label2
             // 
-            this.lblVersionName.AutoSize = true;
-            this.lblVersionName.Location = new System.Drawing.Point(6, 47);
-            this.lblVersionName.Name = "lblVersionName";
-            this.lblVersionName.Size = new System.Drawing.Size(68, 13);
-            this.lblVersionName.TabIndex = 2;
-            this.lblVersionName.Text = "Version Title:";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 64);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(121, 13);
-            this.label1.TabIndex = 3;
-            this.label1.Text = "Forge Version Required:";
-            // 
-            // lblForgeRequirementValue
-            // 
-            this.lblForgeRequirementValue.AutoSize = true;
-            this.lblForgeRequirementValue.Location = new System.Drawing.Point(123, 64);
-            this.lblForgeRequirementValue.Name = "lblForgeRequirementValue";
-            this.lblForgeRequirementValue.Size = new System.Drawing.Size(160, 13);
-            this.lblForgeRequirementValue.TabIndex = 4;
-            this.lblForgeRequirementValue.Text = "1.12.2-forge1.12.2-14.23.5.2847";
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.25F);
+            this.label2.Location = new System.Drawing.Point(11, 98);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(311, 13);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "Old Versions of BuddyPals Modpacks do NOT Include Forge Files";
             // 
             // lblVersionNameValue
             // 
@@ -134,15 +118,32 @@
             this.lblVersionNameValue.TabIndex = 5;
             this.lblVersionNameValue.Text = "Might and Magic Expansion";
             // 
-            // label2
+            // lblForgeRequirementValue
             // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.25F);
-            this.label2.Location = new System.Drawing.Point(11, 98);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(311, 13);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "Old Versions of BuddyPals Modpacks do NOT Include Forge Files";
+            this.lblForgeRequirementValue.AutoSize = true;
+            this.lblForgeRequirementValue.Location = new System.Drawing.Point(123, 64);
+            this.lblForgeRequirementValue.Name = "lblForgeRequirementValue";
+            this.lblForgeRequirementValue.Size = new System.Drawing.Size(160, 13);
+            this.lblForgeRequirementValue.TabIndex = 4;
+            this.lblForgeRequirementValue.Text = "1.12.2-forge1.12.2-14.23.5.2847";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 64);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(121, 13);
+            this.label1.TabIndex = 3;
+            this.label1.Text = "Forge Version Required:";
+            // 
+            // lblVersionName
+            // 
+            this.lblVersionName.AutoSize = true;
+            this.lblVersionName.Location = new System.Drawing.Point(6, 47);
+            this.lblVersionName.Name = "lblVersionName";
+            this.lblVersionName.Size = new System.Drawing.Size(68, 13);
+            this.lblVersionName.TabIndex = 2;
+            this.lblVersionName.Text = "Version Title:";
             // 
             // statusStrip1
             // 

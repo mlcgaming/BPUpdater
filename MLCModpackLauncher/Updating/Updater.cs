@@ -309,6 +309,11 @@ namespace MLCModpackLauncher.Updating
 
         public void Dispose()
         {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
             MyForm.Close();
             MyForm = null;
             WorkingManifest = null;
@@ -327,11 +332,19 @@ namespace MLCModpackLauncher.Updating
             CurrentConfigFiles = null;
             CurrentScripts = null;
             CurrentConfigDirectories = null;
+
+            GC.SuppressFinalize(this);
         }
 
         public void OnUpdateComplete()
         {
             UpdateComplete?.Invoke(null, new UpdaterCompleteEventArgs() { UpdateSuccessful = true });
+        }
+
+        // Finalizer
+        ~Updater()
+        {
+            Dispose(false);
         }
     }
 }

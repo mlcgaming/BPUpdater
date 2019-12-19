@@ -18,14 +18,7 @@ namespace MLCModpackLauncher
         OptionsConfiguration Options;
         VersionFile CurrentVersion, LatestVersion;
         VersionManifest MasterVersionManifest;
-        MainFormState State;
 
-        enum MainFormState
-        {
-            Idle,
-            CheckingVersion,
-            ObtainingMasterManifest
-        }
         enum DownloadedItem
         {
             VersionManifest,
@@ -64,7 +57,6 @@ namespace MLCModpackLauncher
         private void InitializeMainForm()
         {
             ResetForm();
-            State = MainFormState.ObtainingMasterManifest;
             CheckMasterVersionManifest();
             CheckForUpdate();
         }
@@ -124,7 +116,6 @@ namespace MLCModpackLauncher
                 File.Delete(Path.Combine(Library.UpdaterDirectory, "ptr.ver"));
             }
 
-            State = MainFormState.CheckingVersion;
             DownloadFileFTP("ftp://mc.mlcgaming.com/modpack/bin/stable/client.ver", Path.Combine(Library.UpdaterDirectory, "stable.ver"),
                 DownloadedItem.VersionFile);
         }
@@ -147,7 +138,11 @@ namespace MLCModpackLauncher
                 Height = 169;
             }
 
-            State = MainFormState.Idle;
+            if(MasterVersionManifest != null)
+            {
+                // Enable Menus
+                EnableForm();
+            }
         }
         
         private void DownloadFileFTP(string ftpURL, string fileDestinationPath, DownloadedItem item)
@@ -181,7 +176,12 @@ namespace MLCModpackLauncher
         {
             Thread.Sleep(1000);
             MasterVersionManifest = JsonConvert.DeserializeObject<VersionManifest>(File.ReadAllText(Path.Combine(Library.UpdaterDirectory, "versions")));
-            State = MainFormState.Idle;
+
+            if(LatestVersion != null)
+            {
+                // Enable Menus
+                EnableForm();
+            }
         }
 
         private void btnExit_Click_1(object sender, EventArgs e)
@@ -257,7 +257,6 @@ namespace MLCModpackLauncher
 
         private void ResetForm()
         {
-            State = MainFormState.Idle;
             HideStatus();
             lblUpdateAvailable.Visible = false;
             lblUpdateToVersion.Visible = false;
@@ -317,6 +316,10 @@ namespace MLCModpackLauncher
         {
             
         }
+        private void EnableForm()
+        {
+            menuMain.Enabled = true;
+        }
 
         private void btnApplyUpdate_Click(object sender, EventArgs e)
         {
@@ -337,7 +340,6 @@ namespace MLCModpackLauncher
             File.WriteAllText(Library.UpdaterVersionFilePath, latestJson);
 
             ResetForm();
-           State = MainFormState.CheckingVersion;
         }
         private void aboutBuddyPalsUpdaterToolStripMenuItem_Click(object sender, EventArgs e)
         {
