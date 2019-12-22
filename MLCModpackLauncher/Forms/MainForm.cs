@@ -33,7 +33,7 @@ namespace MLCModpackLauncher
 
         private void closeProgramToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
+            Close();
         }
         private void changeMinecraftDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -56,6 +56,13 @@ namespace MLCModpackLauncher
 
         private void InitializeMainForm()
         {
+            DisableUnfinishedFeatures();
+            linkMainSite.Links.Add(0, 10, "http://mc.mlcgaming.com");
+            linkWiki.Links.Add(0, 10, "http://mc.mlcgaming.com/dokuwiki/doku.php?id=start");
+
+            linkMainSite.LinkClicked += MainSiteLinkedLabelClicked;
+            linkWiki.LinkClicked += WikiLinkedLabelClicked;
+
             ResetForm();
             CheckMasterVersionManifest();
             CheckForUpdate();
@@ -129,13 +136,12 @@ namespace MLCModpackLauncher
                 lblUpdateToVersion.Visible = true;
                 btnApplyUpdate.Visible = true;
                 btnApplyUpdate.Enabled = true;
-                Height = 211;
             }
             else
             {
-                lblUpdateAvailable.Text = "Modpack is Up-To-Date!";
+                lblUpdateAvailable.Text = "Up-To-Date!";
                 lblUpdateAvailable.Visible = true;
-                Height = 169;
+                btnForceUpdate.Enabled = true;
             }
 
             if(MasterVersionManifest != null)
@@ -191,6 +197,52 @@ namespace MLCModpackLauncher
         private void openAppFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Process.Start("explorer.exe", Library.RootDirectory);
+        }
+        private void btnApplyUpdate_Click(object sender, EventArgs e)
+        {
+            btnApplyUpdate.Enabled = false;
+            btnApplyUpdate.Visible = false;
+            using (Updater updater = new Updater(LatestVersion.Manifest, Options.MinecraftDirectory, false, new UpdaterForm(LatestVersion.DisplayID)))
+            {
+                updater.UpdateComplete += OnUpdaterComplate;
+                updater.PerformUpdate();
+            }
+
+            if (File.Exists(Library.UpdaterVersionFilePath) == true)
+            {
+                File.Delete(Library.UpdaterVersionFilePath);
+            }
+
+            string latestJson = JsonConvert.SerializeObject(LatestVersion, Formatting.Indented);
+            File.WriteAllText(Library.UpdaterVersionFilePath, latestJson);
+
+            ResetForm();
+        }
+        private void aboutBuddyPalsUpdaterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Open AboutForm as Dialog
+            AboutForm about = new AboutForm();
+            about.ShowDialog();
+        }
+        private void modModpackIssueToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Submit a Mod/Modpack Issue as an Email to max@mlcgaming.com
+        }
+        private void updaterIssueToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Create an Issue on the BPUpdater Github page
+            UpdaterIssueForm issueForm = new UpdaterIssueForm();
+            issueForm.ShowDialog();
+        }
+        private void generalInquiryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Email to max@mlcgaming.com
+        }
+        private void downloadOlderVersionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Open OlderVersionsForm
+            OlderVersionsForm olderVersions = new OlderVersionsForm(MasterVersionManifest);
+            olderVersions.ShowDialog();
         }
 
         public static void CopyAll(DirectoryInfo source, DirectoryInfo target)
@@ -257,11 +309,10 @@ namespace MLCModpackLauncher
 
         private void ResetForm()
         {
-            HideStatus();
             lblUpdateAvailable.Visible = false;
             lblUpdateToVersion.Visible = false;
             btnApplyUpdate.Enabled = false;
-            btnApplyUpdate.Visible = false;
+            btnForceUpdate.Enabled = false;
 
             Library.Initialize();
             CleanupDirectories();
@@ -286,7 +337,7 @@ namespace MLCModpackLauncher
             CurrentVersion = JsonConvert.DeserializeObject<VersionFile>(File.ReadAllText(Library.UpdaterVersionFilePath));
             InitializeOptions();
 
-            lblModpackVersion.Text = "Currently Running v" + CurrentVersion.DisplayID;
+            lblModpackVersion.Text = CurrentVersion.DisplayID;
         }
         private void AppendLog(string logMessage, bool isNewLine = true)
         {
@@ -308,30 +359,41 @@ namespace MLCModpackLauncher
                 File.AppendAllText(Library.UpdaterLogFilePath, entry);
             }
         }
-        private void HideStatus()
-        {
-            
-        }
-        private void ShowStatus()
-        {
-            
-        }
         private void EnableForm()
         {
             menuMain.Enabled = true;
         }
+        private void DisableUnfinishedFeatures()
+        {
+            submitAnIssueToolStripMenuItem.Enabled = false;
+        }
+        
+        private void OnUpdaterIssueSubmitted(object sender, EventArgs e)
+        {
 
-        private void btnApplyUpdate_Click(object sender, EventArgs e)
+        }
+        private void OnUpdaterComplate(object sender, UpdaterCompleteEventArgs e)
+        {
+            CheckForUpdate();
+            CompareVersions();
+        }
+        private void WikiLinkedLabelClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            linkWiki.LinkVisited = true;
+            Process.Start("http://mc.mlcgaming.com/dokuwiki/doku.php?id=start");
+        }
+
+        private void btnForceUpdate_Click(object sender, EventArgs e)
         {
             btnApplyUpdate.Enabled = false;
-            btnApplyUpdate.Visible = false;
-            using(Updater updater = new Updater(LatestVersion.Manifest, Options.MinecraftDirectory, false, new UpdaterForm(LatestVersion.DisplayID)))
+            btnForceUpdate.Enabled = false;
+            using (Updater updater = new Updater(LatestVersion.Manifest, Options.MinecraftDirectory, false, new UpdaterForm(LatestVersion.DisplayID)))
             {
                 updater.UpdateComplete += OnUpdaterComplate;
                 updater.PerformUpdate();
             }
-            
-            if(File.Exists(Library.UpdaterVersionFilePath) == true)
+
+            if (File.Exists(Library.UpdaterVersionFilePath) == true)
             {
                 File.Delete(Library.UpdaterVersionFilePath);
             }
@@ -341,41 +403,11 @@ namespace MLCModpackLauncher
 
             ResetForm();
         }
-        private void aboutBuddyPalsUpdaterToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // Open AboutForm as Dialog
-            AboutForm about = new AboutForm();
-            about.ShowDialog();
-        }
-        private void modModpackIssueToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // Submit a Mod/Modpack Issue as an Email to max@mlcgaming.com
-        }
-        private void updaterIssueToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // Create an Issue on the BPUpdater Github page
-        }
-        private void generalInquiryToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // Email to max@mlcgaming.com
-        }
-        private void downloadOlderVersionsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // Open OlderVersionsForm
-            OlderVersionsForm olderVersions = new OlderVersionsForm(MasterVersionManifest);
-            olderVersions.ShowDialog();
-        }
 
-        private void ChangeStatus(string message)
+        private void MainSiteLinkedLabelClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            lblStatus.Text = message;
-            lblStatus.Refresh();
-            Thread.Sleep(500);
-        }
-        private void OnUpdaterComplate(object sender, UpdaterCompleteEventArgs e)
-        {
-            CheckForUpdate();
-            CompareVersions();
+            linkMainSite.LinkVisited = true;
+            Process.Start("http://mc.mlcgaming.com");
         }
     }
 }

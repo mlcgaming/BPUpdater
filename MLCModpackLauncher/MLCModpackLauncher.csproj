@@ -115,6 +115,7 @@
     <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="GithubIssueItem.cs" />
     <Compile Include="MojangLauncherProfile\LauncherProfile.cs" />
     <Compile Include="MojangLauncherProfile\LauncherProfileAuthenticationPackage.cs" />
     <Compile Include="MojangLauncherProfile\LauncherProfileAuthenticationProfile.cs" />
@@ -136,6 +137,12 @@
     </Compile>
     <Compile Include="Forms\UpdaterForm.Designer.cs">
       <DependentUpon>UpdaterForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\UpdaterIssueForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\UpdaterIssueForm.Designer.cs">
+      <DependentUpon>UpdaterIssueForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Updating\Updater.cs" />
     <Compile Include="Updating\WorkingVersions.cs" />
@@ -159,6 +166,9 @@
     </Compile>
     <EmbeddedResource Include="Forms\UpdaterForm.resx">
       <DependentUpon>UpdaterForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\UpdaterIssueForm.resx">
+      <DependentUpon>UpdaterIssueForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\app.manifest" />
