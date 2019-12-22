@@ -31,11 +31,13 @@
     <MinimumRequiredVersion>1.1.0.13</MinimumRequiredVersion>
     <WebPage>publish.htm</WebPage>
     <ApplicationRevision>3</ApplicationRevision>
-    <ApplicationVersion>2.1.0.%2a</ApplicationVersion>
+    <ApplicationVersion>3.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -75,9 +77,12 @@
     <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>buddypal_icon_Ni2_icon.ico</ApplicationIcon>
+    <ApplicationIcon>bplogo32x32_Lnh_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BuddyPals">
+      <HintPath>..\..\BuddyPals\BuddyPals\bin\Debug\BuddyPals.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -93,17 +98,24 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WinSCPnet, Version=1.6.5.10071, Culture=neutral, PublicKeyToken=2271ec4a3c56d0bf, processorArchitecture=MSIL">
+      <HintPath>..\packages\WinSCP.5.15.9\lib\net\WinSCPnet.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DirectoryFiles\Forge.cs" />
-    <Compile Include="DirectoryFiles\Library.cs" />
-    <Compile Include="DirectoryFiles\ModpackVerFile.cs" />
-    <Compile Include="Form1.cs">
+    <Compile Include="Forms\AboutForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="Forms\AboutForm.Designer.cs">
+      <DependentUpon>AboutForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GithubIssueItem.cs" />
     <Compile Include="MojangLauncherProfile\LauncherProfile.cs" />
     <Compile Include="MojangLauncherProfile\LauncherProfileAuthenticationPackage.cs" />
     <Compile Include="MojangLauncherProfile\LauncherProfileAuthenticationProfile.cs" />
@@ -111,12 +123,37 @@
     <Compile Include="MojangLauncherProfile\LauncherProfileSelectedUser.cs" />
     <Compile Include="MojangLauncherProfile\LauncherProfileSettings.cs" />
     <Compile Include="MojangLauncherProfile\MojangLauncherProfileFile.cs" />
-    <Compile Include="DirectoryFiles\OptionsConfiguration.cs" />
+    <Compile Include="DirectoryFiles\Launcher Files\OptionsConfiguration.cs" />
+    <Compile Include="Forms\OlderVersionsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\OlderVersionsForm.Designer.cs">
+      <DependentUpon>OlderVersionsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DirectoryFiles\VersionFile.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="Forms\UpdaterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\UpdaterForm.Designer.cs">
+      <DependentUpon>UpdaterForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\UpdaterIssueForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\UpdaterIssueForm.Designer.cs">
+      <DependentUpon>UpdaterIssueForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Updating\Updater.cs" />
+    <Compile Include="Updating\WorkingVersions.cs" />
+    <EmbeddedResource Include="Forms\AboutForm.resx">
+      <DependentUpon>AboutForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\OlderVersionsForm.resx">
+      <DependentUpon>OlderVersionsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -127,6 +164,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Forms\UpdaterForm.resx">
+      <DependentUpon>UpdaterForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\UpdaterIssueForm.resx">
+      <DependentUpon>UpdaterIssueForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
@@ -155,7 +198,15 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bplogo32x32_Lnh_icon.ico" />
     <Content Include="buddypal_icon_Ni2_icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\WinSCP.5.15.9\build\WinSCP.targets" Condition="Exists('..\packages\WinSCP.5.15.9\build\WinSCP.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\WinSCP.5.15.9\build\WinSCP.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\WinSCP.5.15.9\build\WinSCP.targets'))" />
+  </Target>
 </Project>
