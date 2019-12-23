@@ -201,22 +201,12 @@ namespace MLCModpackLauncher
         private void btnApplyUpdate_Click(object sender, EventArgs e)
         {
             btnApplyUpdate.Enabled = false;
-            btnApplyUpdate.Visible = false;
+            btnForceUpdate.Enabled = false;
             using (Updater updater = new Updater(LatestVersion.Manifest, Options.MinecraftDirectory, false, new UpdaterForm(LatestVersion.DisplayID)))
             {
                 updater.UpdateComplete += OnUpdaterComplate;
                 updater.PerformUpdate();
             }
-
-            if (File.Exists(Library.UpdaterVersionFilePath) == true)
-            {
-                File.Delete(Library.UpdaterVersionFilePath);
-            }
-
-            string latestJson = JsonConvert.SerializeObject(LatestVersion, Formatting.Indented);
-            File.WriteAllText(Library.UpdaterVersionFilePath, latestJson);
-
-            ResetForm();
         }
         private void aboutBuddyPalsUpdaterToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -374,8 +364,17 @@ namespace MLCModpackLauncher
         }
         private void OnUpdaterComplate(object sender, UpdaterCompleteEventArgs e)
         {
+            if (File.Exists(Library.UpdaterVersionFilePath) == true)
+            {
+                File.Delete(Library.UpdaterVersionFilePath);
+            }
+
+            string latestJson = JsonConvert.SerializeObject(LatestVersion, Formatting.Indented);
+            File.WriteAllText(Library.UpdaterVersionFilePath, latestJson);
+            LatestVersion = null;
+
+            ResetForm();
             CheckForUpdate();
-            CompareVersions();
         }
         private void WikiLinkedLabelClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
@@ -392,16 +391,6 @@ namespace MLCModpackLauncher
                 updater.UpdateComplete += OnUpdaterComplate;
                 updater.PerformUpdate();
             }
-
-            if (File.Exists(Library.UpdaterVersionFilePath) == true)
-            {
-                File.Delete(Library.UpdaterVersionFilePath);
-            }
-
-            string latestJson = JsonConvert.SerializeObject(LatestVersion, Formatting.Indented);
-            File.WriteAllText(Library.UpdaterVersionFilePath, latestJson);
-
-            ResetForm();
         }
 
         private void MainSiteLinkedLabelClicked(object sender, LinkLabelLinkClickedEventArgs e)

@@ -279,7 +279,10 @@ namespace MLCModpackLauncher.Updating
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            SetCurrentItemProgress(e.ProgressPercentage);
+            if(MyForm != null)
+            {
+                SetCurrentItemProgress(e.ProgressPercentage);
+            }
         }
         private void CalculateOverallProgress()
         {
@@ -311,7 +314,6 @@ namespace MLCModpackLauncher.Updating
         {
             Dispose(true);
         }
-
         protected virtual void Dispose(bool disposing)
         {
             MyForm.Close();
@@ -339,6 +341,7 @@ namespace MLCModpackLauncher.Updating
         public void OnUpdateComplete()
         {
             UpdateComplete?.Invoke(null, new UpdaterCompleteEventArgs() { UpdateSuccessful = true });
+            MyForm.Close();
         }
 
         // Finalizer

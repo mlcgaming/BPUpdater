@@ -13,7 +13,9 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
     <IsWebBootstrapper>true</IsWebBootstrapper>
-    <PublishUrl>C:\Users\Max\source\repos\MLCModpackLauncher\MLCModpackLauncher\publish\</PublishUrl>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <PublishUrl>C:\Users\Max\Desktop\BuddyPals Updater\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -36,8 +38,6 @@
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -59,10 +59,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>48FE9E571F974AB964BEC8754FDAB9C428CFA9A3</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>939B6E591A91E0B85D9AAB3CF625530E4E1BC868</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>MLCModpackLauncher_2_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>MLCModpackLauncher_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -74,7 +74,7 @@
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>false</SignManifests>
+    <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>bplogo32x32_Lnh_icon.ico</ApplicationIcon>
@@ -170,6 +170,7 @@
     <EmbeddedResource Include="Forms\UpdaterIssueForm.resx">
       <DependentUpon>UpdaterIssueForm.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="MLCModpackLauncher_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
